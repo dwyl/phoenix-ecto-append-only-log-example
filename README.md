@@ -127,3 +127,62 @@ and you should see the following output:
 [info] execute "REVOKE UPDATE, DELETE ON TABLE addresses FROM append_only"
 [info] == Migrated in 0.0s
 ```
+
+### 3. Defining our Interface
+
+Now that we have no way to delete or update the data, we need to define the functions we'll use to access and insert the data. To do this we'll define an Elixir behaviour (https://hexdocs.pm/elixir/behaviours.html) with some predefined functions.
+
+The first thing we'll do is create the file for the behaviour. Create a file called `lib/append/append_only_log.ex` and add to it the following code:
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  defmacro __using__(_opts) do
+    quote do
+      @behaviour Append.AppendOnlyLog
+
+    end
+  end
+end
+```
+
+Here, we're creating a macro, and defining it as a behaviour. The `__using__` macro is a callback that will be injected into any module that calls `use Append.AppendOnlyLog`. We'll define some functions in here that can be reused by different modules. (see https://elixir-lang.org/getting-started/alias-require-and-import.html#use for more info on `__using__`).
+
+The next step in defining a behaviour is to provide some callbacks that must be provided.
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  @callback get
+  @callback insert
+  @callback update
+
+  defmacro __using__(_opts) do
+    ...
+  end
+end
+```
+
+These are the three functions we'll define in this macro to interface with the database. You may think it odd that we're defining an `update` function for our append only database, but we'll get to that later.
+
+Callback definitions are similar to typespecs, in that you can provide the types that the functions expect to receive as arguments, and what they will return.
+
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
+  @callback update(Ecto.Schema.t(), struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+
+  defmacro __using__(_opts) do
+    def insert(attrs) do
+    end
+
+    def get(id) do
+    end
+
+    def update(%__MODULE__{} = item, attrs) do
+    end
+  end
+end
+```
+
+The next step is to define the functions themselves, but first we'll write some tests.
