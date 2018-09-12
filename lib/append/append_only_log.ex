@@ -1,4 +1,6 @@
 defmodule Append.AppendOnlyLog do
+  alias Append.Repo
+
   @moduledoc """
   Behaviour that defines functions for accessing and inserting data in an
   Append-Only database
@@ -14,6 +16,9 @@ defmodule Append.AppendOnlyLog do
       @behaviour Append.AppendOnlyLog
 
       def insert(attrs) do
+        %__MODULE__{}
+        |> __MODULE__.changeset(attrs)
+        |> Repo.insert()
       end
 
       def get(id) do
@@ -22,6 +27,7 @@ defmodule Append.AppendOnlyLog do
       def update(%__MODULE__{} = item, attrs) do
       end
 
+      defoverridable Append.AppendOnlyLog
     end
   end
 end
