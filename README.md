@@ -179,10 +179,12 @@ defmodule Append.AppendOnlyLog do
     def get(id) do
     end
 
-    def update(%__MODULE__{} = item, attrs) do
+    def update(item, attrs) do
     end
   end
 end
 ```
 
 The next step is to define the functions themselves, but first we'll write some tests.
+
+The first thing we'll want to do is insert something into our database, so we'll put together a simple test for that.

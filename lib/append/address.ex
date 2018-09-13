@@ -1,6 +1,7 @@
 defmodule Append.Address do
   use Ecto.Schema
   import Ecto.Changeset
+  use Append.AppendOnlyLog
 
   schema "addresses" do
     field(:address_line_1, :string)
@@ -12,10 +13,6 @@ defmodule Append.Address do
 
     timestamps()
   end
-
-  # Because we are referencing the Address struct in our Append Only behaviour/macro
-  # it needs to be used after we have defined the struct using 'schema'
-  use Append.AppendOnlyLog
 
   @doc false
   def changeset(address, attrs) do
