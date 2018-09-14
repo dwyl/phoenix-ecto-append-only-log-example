@@ -151,8 +151,9 @@ The next step in defining a behaviour is to provide some callbacks that must be 
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
-  @callback get
   @callback insert
+  @callback get
+  @callback get_by
   @callback update
 
   defmacro __using__(_opts) do
@@ -170,6 +171,7 @@ Callback definitions are similar to typespecs, in that you can provide the types
 defmodule Append.AppendOnlyLog do
   @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
+  @callback get_by(Keyword.t() | map) ::  Ecto.Schema.t() | nil | no_return()
   @callback update(Ecto.Schema.t(), struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
 
   defmacro __using__(_opts) do
@@ -182,6 +184,9 @@ defmodule Append.AppendOnlyLog do
       def get(id) do
       end
 
+      def get_by(clauses) do
+      end
+
       def update(item, attrs) do
       end
     end
@@ -190,6 +195,9 @@ end
 ```
 
 The next step is to define the functions themselves, but first we'll write some tests.
+
+### 4. Implementing our Interface
+#### 4.1 Insert
 
 The first thing we'll want to do is insert something into our database, so we'll put together a simple test for that. Create a directory called `test/append/` and a file called `test/append/address_test.exs`.
 
@@ -378,3 +386,62 @@ Then, the code we put inside `__before_compile__` will be injected at the _end_ 
 Finished in 0.1 seconds
 4 tests, 0 failures
 ```
+
+#### 4.2 Get/Get By
+
+Now that we've done the hard parts, we'll implement the rest of the functionality for our Append Only Log.
+
+The `get` and `get by` functions should be fairly simple, we just need to forward the requests to the Repo. But first, a test.
+
+``` elixir
+defmodule Append.AddressTest do
+  ...
+  describe "get item from database" do
+    test "get/1" do
+      {:ok, item} = insert_address()
+
+      assert Address.get(item.id) == item
+    end
+
+    test "get_by/1" do
+      {:ok, item} = insert_address()
+
+      assert Address.get_by(name: "Thor") == item
+    end
+  end
+
+  def insert_address do
+    Address.insert(%{
+      name: "Thor",
+      address_line_1: "The Hall",
+      address_line_2: "Valhalla",
+      city: "Asgard",
+      postcode: "AS1 3DG",
+      tel: "0800123123"
+    })
+  end
+end
+```
+
+You'll see we've refactored the insert call into a function so we can reuse it, and added some simple tests. Run `mix test` and make sure they fail, then we'll implement the functions.
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  ...
+  defmacro __before_compile__(_env) do
+    quote do
+      ...
+      def get(id) do
+        Repo.get(__MODULE__, id)
+      end
+
+      def get_by(clauses) do
+        Repo.get_by(__MODULE__, clauses)
+      end
+      ...
+    end
+  end
+end
+```
+
+`mix test` again, and we should be all green.
