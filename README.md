@@ -58,7 +58,7 @@ Change the username to your non-default PostgreSQL user:
 
 Once you've done this, `create the database` for your app:
 
-```
+``` sh
 mix ecto.create
 ```
 
@@ -66,7 +66,7 @@ mix ecto.create
 
 We're going to use an address book as an example. run the following generator command to create our schema:
 
-```
+``` sh
 mix phx.gen.schema Address addresses name:string address_line_1:string address_line_2:string city:string postcode:string tel:string
 ```
 
@@ -117,11 +117,11 @@ end
 ```
 
 Once this is done, run:
-```
+``` sh
 mix ecto.migrate
 ```
 and you should see the following output:
-```
+``` sh
 [info] == Running Append.Repo.Migrations.CreateAddresses.change/0 forward
 [info] create table addresses
 [info] execute "REVOKE UPDATE, DELETE ON TABLE addresses FROM append_only"
@@ -173,13 +173,17 @@ defmodule Append.AppendOnlyLog do
   @callback update(Ecto.Schema.t(), struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
 
   defmacro __using__(_opts) do
-    def insert(attrs) do
-    end
+    quote do
+      @behaviour Append.AppendOnlyLog
 
-    def get(id) do
-    end
+      def insert(attrs) do
+      end
 
-    def update(item, attrs) do
+      def get(id) do
+      end
+
+      def update(item, attrs) do
+      end
     end
   end
 end
@@ -187,4 +191,190 @@ end
 
 The next step is to define the functions themselves, but first we'll write some tests.
 
-The first thing we'll want to do is insert something into our database, so we'll put together a simple test for that.
+The first thing we'll want to do is insert something into our database, so we'll put together a simple test for that. Create a directory called `test/append/` and a file called `test/append/address_test.exs`.
+
+``` elixir
+defmodule Append.AddressTest do
+  use Append.DataCase
+  alias Append.Address
+
+  test "add item to database" do
+    assert {:ok, item} = Address.insert(%{
+      name: "Thor",
+      address_line_1: "The Hall",
+      address_line_2: "Valhalla",
+      city: "Asgard",
+      postcode: "AS1 3DG",
+      tel: "0800123123"
+    })
+
+    assert item.name == "Thor"
+  end
+end
+```
+
+This test will assert that an item has been correctly inserted into the database. Run `mix test` now, and you should see it fail.
+
+``` sh
+1) test add item to database (Append.AddressTest)
+     test/append/address_test.exs:5
+     ** (UndefinedFunctionError) function Append.Address.insert/1 is undefined or private
+     code: assert {:ok, item} = Address.insert(%{
+     stacktrace:
+       (append) Append.Address.insert(%{address_line_1: "The Hall", address_line_2: "Valhalla", city: "Asgard", name: "Thor", postcode: "AS1 3DG", tel: "0800123123"})
+       test/append/address_test.exs:6: (test)
+```
+
+Now we'll go and write the code to make the test pass. The first thing we need is the actual `insert/1` function body:
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  ...
+  defmacro __using__(_opts) do
+    quote do
+      @behaviour Append.AppendOnlyLog
+
+      def insert(attrs) do
+        %__MODULE__{}
+        |> __MODULE__.changeset(attrs)
+        |> Repo.insert()
+      end
+      ...
+    end
+  end
+end
+```
+
+Now, because we're using a macro, everything inside the `quote do`, will be injected into the module that uses this macro, and so will access its context. So in this case, where we are using `__MODULE__`, it will be replaced with the calling module's name (`Append.Address`).
+
+In order to now use this function, we need to include the macro in `lib/append/address.ex`, which we generated earlier:
+
+``` elixir
+defmodule Append.Address do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  use Append.AppendOnlyLog #include the functions from this module's '__using__' macro.
+
+  schema "addresses" do
+    ...
+  end
+
+  @doc false
+  def changeset(address, attrs) do
+    ...
+  end
+end
+```
+
+Now run the tests again.
+
+``` sh
+** (CompileError) lib/append/address.ex:4: Append.Address.__struct__/1 is undefined, cannot expand struct Append.Address
+    (stdlib) lists.erl:1354: :lists.mapfoldl/3
+    (elixir) expanding macro: Kernel.|>/2
+```
+
+Ah, an error.
+
+Now this error may seem a little obtuse. The error is on line 4 of address.ex? That's:
+``` elixir
+use Append.AppendOnlyLog
+```
+That's because at compile time, this line is replaced with the contents of the macro, meaning the compiler isn't sure exactly which line of the macro is causing the error. This is one of the disadvantages of macros, and why they should be kept short, and used sparingly.
+
+Luckily, there is a way we can see the stacktrace of the macro. Add `location: :keep` to the `quote do`:
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  ...
+  defmacro __using__(_opts) do
+    quote location: :keep do
+      @behaviour Append.AppendOnlyLog
+
+      def insert(attrs) do
+        ...
+      end
+      ...
+    end
+  end
+end
+```
+
+Now, if we run `mix test` again, we should see where the error actually is:
+
+``` sh
+** (CompileError) lib/append/append_only_log.ex:20: Append.Address.__struct__/1 is undefined, cannot expand struct Append.Address
+    (stdlib) lists.erl:1354: :lists.mapfoldl/3
+    (elixir) expanding macro: Kernel.|>/2
+```
+
+Line 20 of `append_only_log.ex`:
+``` elixir
+%__MODULE__{}
+```
+
+So we see that trying to access the `Append.Address` struct is causing the error. Now this function `Append.Address.__struct__/1` should be defined when we call:
+
+``` elixir
+schema "addresses" do
+```
+
+in the `Address` module. The problem lies in the way macros are injected into modules, and the order functions are evaluated. We could solve this by moving the `use Append.AppendOnlyLog` after the schema:
+
+``` elixir
+defmodule Append.Address do
+  ...
+
+  schema "addresses" do
+    ...
+  end
+
+  use Append.AppendOnlyLog #include the functions from this module's '__using__' macro.
+
+  ...
+end
+```
+
+Now run `mix.test` and it should pass! But something doesn't quite feel right. We shouldn't need to include a 'use' macro halfway down a module to get our code to compile. And we don't! Elixir provides some fine grained control over the compile order of modules: https://hexdocs.pm/elixir/Module.html#module-module-attributes
+
+In this case, we want to use the `@before_compile` attribute.
+
+``` elixir
+defmodule Append.AppendOnlyLog do
+  ...
+  defmacro __using__(_opts) do
+    quote do
+      @behaviour Append.AppendOnlyLog
+      @before_compile unquote(__MODULE__)
+    end
+  end
+
+  defmacro __before_compile__(_env) do
+    quote do
+      def insert(attrs) do
+        %__MODULE__{}
+        |> __MODULE__.changeset(attrs)
+        |> Repo.insert()
+      end
+
+      def get(id) do
+      end
+
+      def update(item, attrs) do
+      end
+    end
+  end
+end
+```
+
+So here we add `@before_compile unquote(__MODULE__)` to `__using__`.
+
+`unquote(__MODULE__)` here, just means we want to use the `__before_compile__` macro defined in _this_ module (`AppendOnlyLog`), _not_ the calling module (`Address`).
+
+Then, the code we put inside `__before_compile__` will be injected at the _end_ of the calling module, meaning the schema will already be defined, and our tests should pass.
+
+```
+Finished in 0.1 seconds
+4 tests, 0 failures
+```
