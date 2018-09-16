@@ -11,6 +11,7 @@ defmodule Append.AppendOnlyLog do
   @callback get_by(Keyword.t() | map) ::  Ecto.Schema.t() | nil | no_return()
   @callback update(Ecto.Schema.t(), struct) ::
               {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @callback get_history(Ecto.Schema.t()) :: [Ecto.Schema.t()] | no_return()
 
   defmacro __using__(_opts) do
     quote do
@@ -23,6 +24,8 @@ defmodule Append.AppendOnlyLog do
 
   defmacro __before_compile__(_env) do
     quote do
+      import Ecto.Query, only: [from: 2]
+
       def insert(attrs) do
         %__MODULE__{}
         |> __MODULE__.changeset(attrs)
@@ -42,6 +45,14 @@ defmodule Append.AppendOnlyLog do
         |> Map.put(:id, nil)
         |> __MODULE__.changeset(attrs)
         |> Repo.insert()
+      end
+
+      def get_history(%__MODULE__{} = item) do
+        query = from m in __MODULE__,
+        where: m.entry_id == ^item.entry_id,
+        select: m
+
+        Repo.all(query)
       end
     end
   end

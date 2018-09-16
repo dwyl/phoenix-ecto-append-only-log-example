@@ -31,6 +31,24 @@ defmodule Append.AddressTest do
     assert updated_item.tel != item.tel
   end
 
+  test "get history of item" do
+    {:ok, item} = insert_address()
+
+    {:ok, updated_item} = Address.update(item, %{
+      address_line_1: "12",
+      address_line_2: "Kvadraturen",
+      city: "Oslo",
+      postcode: "NW SCA",
+    })
+
+    history = Address.get_history(updated_item)
+
+    assert length(history) == 2
+    assert [h1, h2] = history
+    assert Map.fetch(h1, :city) == {:ok, "Asgard"}
+    assert Map.fetch(h2, :city) == {:ok, "Oslo"}
+  end
+
   def insert_address do
     Address.insert(%{
       name: "Thor",
