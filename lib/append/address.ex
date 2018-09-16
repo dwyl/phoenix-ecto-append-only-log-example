@@ -10,6 +10,7 @@ defmodule Append.Address do
     field(:name, :string)
     field(:postcode, :string)
     field(:tel, :string)
+    field(:entry_id, :string)
 
     timestamps()
   end
