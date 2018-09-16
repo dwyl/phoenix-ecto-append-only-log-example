@@ -463,11 +463,26 @@ defmodule Append.Address do
 
     ...
   end
-  ...
+
+  def changeset(address, attrs) do
+    address
+    |> insert_entry_id()
+    |> cast(attrs, [:name, :address_line_1, :address_line_2, :city, :postcode, :tel, :entry_id])
+    |> validate_required([:name, :address_line_1, :address_line_2, :city, :postcode, :tel, :entry_id])
+  end
+
+  def insert_entry_id(address) do
+    case Map.fetch(address, :entry_id) do
+      {:ok, nil} -> %{address | entry_id: Ecto.UUID.generate()}
+      _ -> address
+    end
+  end
 end
 ```
 
-And create a migration file:
+We've added a function here that will generate a unique id, and add it to our item when it's created.
+
+Then we create a migration file:
 
 ```
 mix ecto.gen.migration add_entry_id
