@@ -1,0 +1,12 @@
+language: elixir
+elixir:
+  - 1.6.1
+otp_release:
+  - 20.2.4
+env:
+  - MIX_ENV=test
+script:
+  # - mix do deps.get, compile --warnings-as-errors, coveralls.json, dogma
+  - mix cover
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
