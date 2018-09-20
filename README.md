@@ -76,7 +76,7 @@ This will create two new files:
 
 Before you follow the instructions in your terminal, we'll need to edit the generated migration file.
 
-The generated file should look like this:
+The generated migration file should look like this:
 
 ``` elixir
 defmodule Append.Repo.Migrations.CreateAddresses do
@@ -116,6 +116,9 @@ defmodule Append.Repo.Migrations.CreateAddresses do
 end
 ```
 
+> For reference, this is what your migration file _should_ look like now:
+[priv/repo/migrations/20180912142549_create_addresses.exs](https://github.com/dwyl/phoenix-ecto-append-only-log-example/pull/2/files#diff-db55bfd345510f8bbb29d36daadf7061R21)
+
 Once this is done, run:
 ``` sh
 mix ecto.migrate
@@ -127,6 +130,13 @@ and you should see the following output:
 [info] execute "REVOKE UPDATE, DELETE ON TABLE addresses FROM append_only"
 [info] == Migrated in 0.0s
 ```
+
+> **Note**: if you followed terminal instruction and ran `mix ecto.migrate`
+**before** updating the migration file, you will need to run
+[`mix ecto.drop`](https://hexdocs.pm/ecto/Mix.Tasks.Ecto.Drop.html#content)
+and **first** update the migration file (_as per the instructions_)
+and **then** run:
+`mix ecto.create && mix ecto.migrate`.
 
 ### 3. Defining our Interface
 
@@ -151,6 +161,8 @@ The next step in defining a behaviour is to provide some callbacks that must be 
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
+  alias Append.Repo
+
   @callback insert
   @callback get
   @callback get_by
@@ -169,6 +181,8 @@ Callback definitions are similar to typespecs, in that you can provide the types
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
+  alias Append.Repo
+
   @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
   @callback get_by(Keyword.t() | map) ::  Ecto.Schema.t() | nil | no_return()
@@ -423,7 +437,10 @@ defmodule Append.AddressTest do
 end
 ```
 
-You'll see we've refactored the insert call into a function so we can reuse it, and added some simple tests. Run `mix test` and make sure they fail, then we'll implement the functions.
+You'll see we've refactored the insert call into a function
+so we can reuse it, and added some simple tests.
+Run `mix test` and make sure they fail,
+then we'll implement the functions.
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
@@ -448,11 +465,23 @@ end
 
 #### 4.3 Update
 
-Now we come to the update function. "But I thought we were only appending to the database?" I hear you ask. This is true, but we still need to relate our existing data to the new, updated data we add.
+Now we come to the update function. <br />
+"But I thought we were only appending to the database?" I hear you ask. <br />
+This is true, but we still need to relate our existing data to the new,
+updated data we add.
 
-To do this, we need to be able to reference the previous entry somehow. The simplest (conceptually) way of doing this is to provide each entry a unique id. Note that the id will be used to represent unique entries, but it will not be unique in a table, as revisions of entries will have the same id. This is the simplest way we can link our entries, but there may be some disadvantages, which we'll look into later.
+To do this, we need to be able to reference the previous entry somehow.
+The simplest (conceptually) way of doing this
+is to provide a unique id to each entry.
+Note that the id will be used to represent unique entries,
+but it will not be unique in a table,
+as revisions of entries will have the same id.
+This is the simplest way we can link our entries,
+but there may be some disadvantages,
+which we'll look into later.
 
-So, first we'll need to edit our schema to add a shared id to our address entries:
+So, first we'll need to edit our schema
+to add a shared id to our address entries:
 
 ``` elixir
 defmodule Append.Address do
@@ -488,6 +517,21 @@ Then we create a migration file:
 mix ecto.gen.migration add_entry_id
 ```
 
+That created a file called
+`priv/repo/migrations/20180914130516_add_entry_id.exs`
+
+containing the following "blank" migration:
+```elixir
+defmodule Append.Repo.Migrations.AddEntryId do
+  use Ecto.Migration
+
+  def change do
+
+  end
+end
+```
+Add an `alter` definition to the `change` function body:
+
 ``` elixir
 defmodule Append.Repo.Migrations.AddEntryId do
   use Ecto.Migration
@@ -500,10 +544,20 @@ defmodule Append.Repo.Migrations.AddEntryId do
   end
 end
 ```
+This is fairly explanatory: it alters the `addresses` table
+to add the `entry_id` field.
 
+Run the migration:
 ```
 mix ecto.migrate
 ```
+You should see the following in your terminal:
+```sh
+[info] == Running Append.Repo.Migrations.AddEntryId.change/0 forward
+[info] alter table addresses
+[info] == Migrated in 0.0s
+```
+
 
 Now, we'll write a test for the update function.
 
@@ -522,10 +576,35 @@ defmodule Append.AddressTest do
 end
 ```
 
-Then we write the update function itself. We'll take the existing item, and a map of updated attributes as arguments.
+If you attempt to _run_ this test with `mix test`,
+you will see:
+```sh
+.....
 
-Then we'll use the `insert` function to create a new entry in the database, rather than `update`, which would overwrite the old one.
+  1) test update item in database (Append.AddressTest)
+     test/append/address_test.exs:25
+     ** (MatchError) no match of right hand side value: nil
+     code: {:ok, updated_item} = Address.update(item, %{tel: "0123444444"})
+     stacktrace:
+       test/append/address_test.exs:28: (test)
 
+..
+
+Finished in 0.2 seconds
+8 tests, 1 failure
+```
+
+Let's _implement_ the `update` function to make the test pass.
+
+The update function itself will receive two arguments:
+the existing item and a map of updated attributes.
+
+Then we'll use the `insert` function
+to create a new entry in the database,
+rather than `update`,
+which would overwrite the old one.
+
+In your `/lib/append/append_only_log.ex` file add the following `def update`:
 ``` elixir
 defmodule Append.AppendOnlyLog do
   ...
@@ -542,7 +621,8 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-But now, if we try to run our tests:
+If we try to run our tests,
+we will see the following error:
 
 ```
 1) test update item in database (Append.AddressTest)
@@ -551,8 +631,11 @@ But now, if we try to run our tests:
 
          * unique: addresses_pkey
 ```
-We can't add the item again, because the unique id already exists in the database.
+This is because we can't add the item again,
+with the same unique id (`addresses_pkey`)
+as it already exists in the database.
 
+We need to "clear" the `:id` field _before_ attempting to update (insert):
 ``` elixir
 def update(%__MODULE__{} = item, attrs) do
   item
@@ -562,11 +645,14 @@ def update(%__MODULE__{} = item, attrs) do
 end
 ```
 
-So here we remove the original autogenerated id from the existing item, preventing us from duplicating it in the database.
+So here we remove the original autogenerated id from the existing item,
+preventing us from duplicating it in the database.
+
 
 #### 4.4 Get history
 
-The final part of our append only database will be the functionality to see the entire history of an item.
+The final part of our append only database will be the functionality
+to see the entire history of an item.
 
 As usual, we'll write a test first:
 
