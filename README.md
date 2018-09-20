@@ -237,6 +237,7 @@ Now we'll go and write the code to make the test pass. The first thing we need i
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
+  alias Append.Repo
   ...
   defmacro __using__(_opts) do
     quote do
