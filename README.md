@@ -24,6 +24,8 @@ Make sure you have a non-default PostgresQL user, with no more than `CREATEDB` p
   + `CREATE USER append_only;`
   + `ALTER USER append_only CREATEDB;`
 
+Default users are `Superuser`s who cannot have core actions like `DELETE` and `UPDATE` revoked. But with an additional user we can revoke these actions to ensure mutating actions don't occur accidentally (we will do this in step 2).
+
 ### 1. Getting started
 
 Make a new Phoenix app:
@@ -174,7 +176,7 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-These are the three functions we'll define in this macro to interface with the database. You may think it odd that we're defining an `update` function for our append only database, but we'll get to that later.
+These are the four functions we'll define in this macro to interface with the database. You may think it odd that we're defining an `update` function for our append only database, but we'll get to that later.
 
 Callback definitions are similar to typespecs, in that you can provide the types that the functions expect to receive as arguments, and what they will return.
 
