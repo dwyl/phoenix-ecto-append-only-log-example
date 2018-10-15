@@ -2,10 +2,59 @@
 📝 A step-by-step example for how build a Phoenix (Elixir) App where all data is immutable (append only) and accountability is guaranteed.
 
 ## Why?
+If you have ever used the "***undo***" functionality in a program, you will have _experienced_ the power of an Append-only Log.
+
+
+<div align="center">
+    <a href="http://www.poorlydrawnlines.com/comic/undo/">
+        <img src="https://user-images.githubusercontent.com/194400/46946840-f2030980-d070-11e8-853e-906f8734ce75.png" alt="poorly drawn lines: ctrl + z">
+    </a>
+</div>
+<br />
+
+When changes always create a _new_ state (_without altering history_) we can _easily_ return to the _previous_ state. This is the principal in the Elm Architecture (_borrowed by Redux so **most** React apps_) and in Elixir/Haskell too; data is always "transformed" never _mutated_. This makes it _much faster_ to build reliable/predictable apps because debugging apps is considerably easier when state is always known.
+
+<div align="center">
+    <a href="https://twitter.com/jessitron/status/333228687208112128">
+        <img src="https://user-images.githubusercontent.com/194400/46946485-c4699080-d06f-11e8-9b1e-30982cfb5c25.png" alt="@Jessitron (Jessica Kerr) tweet: Mutability leaves us with how did I get to this state?">
+    </a>
+</div>
+<br />
+
+If any these terms are unclear to you now, never fear we will be clarifying them below. The main thing to remember is that using an Append-only Log to store your App's data makes it _much_ easier to build the App almost _immediately_ because records are never changed, history is preserved and can easily be referred to i.e. you have built-in debug-ability/traceability.
+
+Once you are overcome the _initial_ learning curve, you will see that your Apps become easy to _reason_ about and you "_unlock_" many other possibilities for useful features and functionality that will _delight_ the users! You will get your work done much faster and more reliably, users will be happier with the UX and Product Owners/Managers will be able to _see_ how data is transformed in the app; _easily_ visualise the usage data and "flow" on analytics charts/graphs in realtime!
+
+**Append only logs are an attractive approach to database structures because:**
+- They allow you to process data in real-time. This makes them ideal for analytics. :bar_chart: 🤔
+- Data is never lost. Making them reliable for recovery during outages. As well ideal for version control and accountability. :closed_lock_with_key:
+- Columns are never deleted or altered so existing code/queries never "break" :negative_squared_cross_mark: :warning:. This is essential for "Zero Downtime Continuous Deployment".
+- A database migration can be applied before the application server is updated and the existing/current version of the application can continue to run like nothing happened. :sunglasses:
+- Database migrations are always backward compatible. :leftwards_arrow_with_hook:
+
+**Here are some examples of use cases where these characteristics may prove useful:**
+
+- **CRM** - where customer data is updated and can be incorrectly altered, having the complete history of a record and being able to "time travel" through the change log is a really good idea. :clock10: :leftwards_arrow_with_hook: :white_check_mark:
+- **CMS/Blog** - being able to "roll back" content means you can invite your trusted readers / stakeholders to edit/improve your content without "fear" of it decaying. :lock_with_ink_pen:
+- **E-Commerce** - both for journey/story tracking and transaction reliability. Also, same applies for the Product catalog (which is a specific type of CMS); having version history dramatically increases confidence in the site both from an internal/vendor perspective and from end-users.
+This is especially useful for the reviews on e-commerce sites/apps where we want to be able to detect/see where people have updated their review following extended usage. e.g: did the product disintegrate after a short period of time? did the user give an initially unfavourable e.g 3/5 star review and over time come to realise that the product is actually exceptionally durable, well-designed and great value-for-money because it has lasted twice a long as any previous product they purchased to perform the same "job to be done"? :star::star::star::star::star:
+- **Chat** - a chat system should allow editing of previously sent messages for typos/inaccuracies.
+but that edit/revision history should be transparent not "message edited" (with no visibility of what changed). If a person deletes a message they should have to provide a comment indicating why they are "breaking" the chain (more on this later). :pencil2:
+- **Social Networking** - not allowing people to delete a message without leaving a clarifying comment to promote accountability for what people write. In many cases this can reduce hate speech. :rage2::speech_balloon:
+- **Most Other Consumer Web/Mobile Applications** - you name the app, there are ways in which an append-only log is applicable/useful/essential to the reliability/confidence in that app. :sparkling_heart:
 
 ## What?
 
+The **Phoenix Append Only Log Example is an immutable database structure**.
+
+It is an alternative to using Ecto's standard "CRUD" which allows overwriting and deleting data without "rollback" or "recoverability". In these instances each update over-writes the state of the record so it's impossible to retrieve it without having to go digging through a backup which is often a multi-day process, cost/time prohibitive or simply unavailable.
+
+Instead the Phoenix Append Only Log Example "tables" are only ever extended with new columns. This means that whilst changes can be displayed as you wish to your users, data is never irretrievable or lost to you on the back-end. It is also a time series database meaning that whatever activity occurs, we also know _when_ it occurred, making understanding chronology and how events occurred easy.
+
 ## Who?
+
+All developers who have a basic understanding of database storage in web development and want to "level up" their knowledge/skills. Those who want to improve the reliability of the product they are building. Those who want to understand more ("advanced") "distributed" application architecture
+including the ability to (optionally/incrementally) use IPFS and Blockchain.
 
 ## How?
 
