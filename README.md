@@ -129,9 +129,25 @@ a comment indicating why they are "breaking" the conversation chain
 - **Social Networking** - not allowing people to delete a message
 without leaving a clarifying comment to promote accountability
 for what people write. In many cases this can reduce hate speech. 😡 💬 😇
-- **Most Other Consumer Web/Mobile Applications** - you name the app,
-there are ways in which an append-only log is applicable/useful/essential
-to the reliability/confidence in that app. 💖
++ **Banking/Finance** - _all_ transactions are append-only ledgers.
+If they were not accounting would be chaos and the world economy would collapse!
+When the "available balance" of an account is required,
+it is _calculated_ from the list/log of debit/credit transactions.
+(_a summary of the data in an account may be **cached**
+  in a database "view" but it is **never mutated**_)
++ ***Healthcare***: a patient's medical data gets captured/recorded once
+as a "snapshot" in time. The doctor or
+[ECG machine](https://en.wikipedia.org/wiki/Electrocardiography)
+does not go back and "update" the value of the patients heart rate
+or electrophysiologic pattern.
+A _new_ value is sampled at _each_ time interval.
++ **Analytics** is _all_ append-only logs which are a time-series of events _streamed_ from the device to server, saved in a time-series data store,
+and streamed (_or "replayed"_) to visualisation dashboard.
+  + Events in Analytics systems are often _aggregated_ (_using "views"_) into charts/graphs. The "views" of the data are "temporary tables" which store the _aggregated_ or _computed_ data but do not touch the underlying log/stream.
+- **Most Other Web/Mobile Applications** - you name the app,
+there is _always_ a way in which an append-only log
+is applicable/useful/essential
+to the reliability/confidence _users_ have in that app. 💖
 
 ## What?
 
