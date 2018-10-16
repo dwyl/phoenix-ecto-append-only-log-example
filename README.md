@@ -177,14 +177,17 @@ and deploy our app to any "Cloud" provider that supports Postgres.
 Using an Append-only Log with UUIDs as Primary Keys
 is _all_ the "ground work" <br />
 needed to ensure that _any_ app we build
-is _prepared_ to scale **_both_ Vertically _and_ Horizontally**. ✅ 🚀 <br />
+is _prepared_ to
+[**scale _both_ Vertically _and_ Horizontally**](https://stackoverflow.com/questions/11707879/difference-between-scaling-horizontally-and-vertically-for-databases).
+✅ 🚀 <br />
+
 If/when our app reaches **10k writes/sec**
-we will be **_insanely_** "**successful**" by _definition_. 🦄 🎉
+we will be **_insanely_** "**successful**" by _definition_. 🦄 🎉 <br />
 For example: an AWS RDS (PostgreSQL)
 [`db.m4.16xlarge` instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html)
-has **256GB** of RAM and can handle **10GB**/second of "throughput".
-It's been _benchmarked_ at ***200k writes/second*** ...
-if we _ever_ need to use **one** of these instances we will be
+has **256GB** of RAM and can handle **10GB**/second of "throughput". <br />
+This instance has been _benchmarked_ at ***200k writes/second*** ... <br />
+If we _ever_ need to use **one** of these instances we will be
 making enough revenue to hire a _team_ of Database experts!
 
 **Bottom line**: _embrace_ Postgres for your App,
