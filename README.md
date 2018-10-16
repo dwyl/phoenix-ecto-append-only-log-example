@@ -1,5 +1,19 @@
-# phoenix-ecto-append-only-log-example
-📝 A step-by-step example for how build a Phoenix (Elixir) App where all data is immutable (append only) and accountability is guaranteed.
+<div align="center">
+
+# Phoenix Ecto Append-only Log Example
+
+[![Build Status](https://img.shields.io/travis/dwyl/phoenix-ecto-append-only-log-example/master.svg?style=flat-square)](https://travis-ci.org/dwyl/phoenix-ecto-append-only-log-example)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-ecto-append-only-log-example/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-ecto-append-only-log-example?branch=master)
+[![HitCount](http://hits.dwyl.io/dwyl/phoenix-ecto-append-only-log-example.svg)](https://github.com/dwyl/phoenix-ecto-append-only-log-example)
+</div>
+<br />
+
+
+A _step-by-step_ example to help _anyone_
+learn  how build Phoenix (Elixir) Apps
+where all data is stored in an _append only_ (_immutable_) log
+thus all history is preserved
+and _accountability_ is _guaranteed_.
 
 ## Why?
 If you have ever used the "***undo***" functionality in a program, you will have _experienced_ the power of an Append-only Log.
