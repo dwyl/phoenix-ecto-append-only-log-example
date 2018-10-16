@@ -26,7 +26,8 @@ you have _experienced_ the power of an Append-only Log.
 
 <div align="center">
     <a href="http://www.poorlydrawnlines.com/comic/undo/">
-        <img src="https://user-images.githubusercontent.com/194400/46946840-f2030980-d070-11e8-853e-906f8734ce75.png" alt="poorly drawn lines: ctrl + z">
+        <img src="https://user-images.githubusercontent.com/194400/46946840-f2030980-d070-11e8-853e-906f8734ce75.png"
+        alt="poorly drawn lines comic: ctrl + z">
     </a>
 </div>
 <br />
@@ -55,7 +56,8 @@ It also means we are **_never_ confused** about how data/state was transformed:
 
 <div align="center">
     <a href="https://twitter.com/jessitron/status/333228687208112128">
-        <img src="https://user-images.githubusercontent.com/194400/46946485-c4699080-d06f-11e8-9b1e-30982cfb5c25.png" alt="@Jessitron (Jessica Kerr) tweet: Mutability leaves us with how did I get to this state?">
+        <img src="https://user-images.githubusercontent.com/194400/46946485-c4699080-d06f-11e8-9b1e-30982cfb5c25.png"
+        alt="@Jessitron (Jessica Kerr) tweet: Mutability leaves us with how did I get to this state?">
     </a>
 </div>
 <br />
@@ -80,7 +82,7 @@ charts/graphs in _realtime_!
 
 ## What?
 
-Using an Append Only Log is an alternative to using Ecto's regular
+Using an Append Only Log is an _alternative_ to using Ecto's regular
 ["CRUD"](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
 which allows overwriting and deleting data
 without "rollback" or "recoverability".
@@ -117,9 +119,9 @@ through the change log is a really good idea. 🕙 ↩️ 🕤 ✅
 means you can invite your trusted readers / stakeholders
 to edit/improve your content
 without "fear" of it decaying. 🔏
-- **E-Commerce** - both for journey/cart tracking and transaction reliability. 🛒
+- **E-Commerce** - both for cart tracking and transaction logging. 🛒
   + Also, the same applies for the Product catalog
-(which is a specific type of CMS);
+(_which is a specific type of CMS_);
 having version history dramatically increases confidence in the site both
 from an internal/vendor perspective and from end-users.
 This is _especially_ useful for the reviews on e-commerce sites/apps
@@ -154,14 +156,44 @@ as a "snapshot" in time. The doctor or
 does not go back and "update" the value of the patients heart rate
 or electrophysiologic pattern.
 A _new_ value is sampled at _each_ time interval.
-+ **Analytics** is _all_ append-only logs which are a time-series of events _streamed_ from the device to server, saved in a time-series data store,
-and streamed (_or "replayed"_) to visualisation dashboard.
-  + Events in Analytics systems are often _aggregated_ (_using "views"_) into charts/graphs. The "views" of the data are "temporary tables" which store the _aggregated_ or _computed_ data but do not touch the underlying log/stream.
++ **Analytics** is _all_ append-only time-series events
+_streamed_ from the device to server and saved in a time-series data store.
+  + Events in Analytics systems are often _aggregated_ (_using "views"_)
+  into charts/graphs. The "views" of the data are "temporary tables"
+  which store the _aggregated_ or _computed_ data
+  but do not touch the underlying log/stream.
 - **Most Other Web/Mobile Applications** - you name the app,
 there is _always_ a way in which an append-only log
 is applicable/useful/essential
 to the reliability/confidence _users_ have in that app. 💖
 
+### Append-only Using _PostgreSQL_...?
+
+This example uses "stock" PostgreSQL and does not require any plugins.
+This is a _deliberate choice_ and we use this approach in "production".
+This means we can use _all_ of the power of Postgres,
+and deploy our app to any "Cloud" provider that supports Postgres.
+
+If your app ever "outgrows" Postgres,
+you can easily migrate to
+["CitusDB"](https://github.com/dwyl/how-to-choose-a-database/issues/4)
+
+Using an Append-only Log with UUIDs as Primary Keys
+is _all_ the "ground work" we need to ensure that _any_ app
+we build is _prepared_ to scale **_both_ Vertically _and_ Horizontally**. ✅ 🚀
+If/when our app reaches **10k writes/sec**
+we will be **_insanely_** "**successful**" by _definition_. 🦄 🎉
+For example: an AWS RDS (PostgreSQL)
+[`db.m4.16xlarge` instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html)
+has **256GB** of RAM and can handle **10GB**/second of "throughput".
+It's been _benchmarked_ at ***200k writes/second*** ...
+if we _ever_ need to use **one** of these instances we will be
+making enough revenue to hire a _team_ of Database experts!
+
+**Bottom line**: _embrace_ Postgres for your App,
+you are in ["good company"](https://github.com/dwyl/learn-postgresql/issues/31).
+Postgres can handle whatever you throw at it,
+loves append-only data!
 
 ## Who?
 
@@ -177,7 +209,8 @@ including the ability to (optionally/incrementally) use IPFS and/or Blockchain!
 The only pre-requisite for understanding this example/tutorial are:
 
 + Basic Elixir language syntax knowledge: https://github.com/dwyl/learn-elixir
-+ Basic Phoenix Framework knowledgE: https://github.com/dwyl/learn-phoenix-framework
++ Basic Phoenix Framework knowledge:
+https://github.com/dwyl/learn-phoenix-framework
 
 We _recommend_ that you follow the Phoenix Chat Example (_tutorial_):
 https://github.com/dwyl/phoenix-chat-example
