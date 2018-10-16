@@ -1,6 +1,6 @@
 <div align="center">
 
-# Phoenix Ecto Append-only Log Example
+# Phoenix Ecto Append-only Log _Example_
 
 [![Build Status](https://img.shields.io/travis/dwyl/phoenix-ecto-append-only-log-example/master.svg?style=flat-square)](https://travis-ci.org/dwyl/phoenix-ecto-append-only-log-example)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-ecto-append-only-log-example/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-ecto-append-only-log-example?branch=master)
@@ -9,14 +9,18 @@
 <br />
 
 
-A _step-by-step_ example to help _anyone_
-learn  how build Phoenix (Elixir) Apps
-where all data is stored in an _append only_ (_immutable_) log
-thus all history is preserved
-and _accountability_ is _guaranteed_.
+A **_step-by-step_ example** to help _anyone_
+learn how build Phoenix (Elixir) Apps
+where all data is stored in an **_append-only_** (_immutable_) **log**.
+Learn this if you want **debugging** your app to be **_much_ easier**,
+comprehensive **analytics** to be ***built-in***
+and _accountability_ ***guaranteed***
+because **_all_ history** of changes (_and who made them_)
+is **_always_ preserved**.
 
 ## Why?
-If you have ever used the "***undo***" functionality in a program, you will have _experienced_ the power of an Append-only Log.
+If you have ever used the "***undo***" functionality in a program,
+you have _experienced_ the power of an Append-only Log.
 
 
 <div align="center">
@@ -26,7 +30,26 @@ If you have ever used the "***undo***" functionality in a program, you will have
 </div>
 <br />
 
-When changes always create a _new_ state (_without altering history_) we can _easily_ return to the _previous_ state. This is the principal in the Elm Architecture (_borrowed by Redux so **most** React apps_) and in Elixir/Haskell too; data is always "transformed" never _mutated_. This makes it _much faster_ to build reliable/predictable apps because debugging apps is considerably easier when state is always known.
+When a change is made to some data
+it always creates a _new_ state
+(_without altering history_)
+this makes it _easy_ to return/rewind to the _previous_ state.
+
+_Most_ functional programming languages
+(_e.g: Elixir, Elm, Lisp, Haskell, Clojure_)
+have an "_immutable data_" paradigm;
+data is always "transformed" never _mutated_.
+This makes it _much faster_ to build reliable/predictable apps
+because debugging apps is considerably easier when state is _always_ known.
+
+The "immutable data" principal in the Elm Architecture
+is what enables the
+["_Time Travelling Debugger_"](http://elm-lang.org/blog/time-travel-made-easy)
+which is an _incredibly_ powerful way to debug an App.
+By using an Append-only Log for _all_ data stored by our Elixir/Phoenix Apps,
+we get a "time-travelling debugger" and _complete_ "analytics" _built-in_!
+
+It also means we are _never_ confused about how data/state was transformed:
 
 <div align="center">
     <a href="https://twitter.com/jessitron/status/333228687208112128">
@@ -35,18 +58,43 @@ When changes always create a _new_ state (_without altering history_) we can _ea
 </div>
 <br />
 
-If any these terms are unclear to you now, never fear we will be clarifying them below. The main thing to remember is that using an Append-only Log to store your App's data makes it _much_ easier to build the App almost _immediately_ because records are never changed, history is preserved and can easily be referred to i.e. you have built-in debug-ability/traceability.
+> **Note**: If any these terms are unclear to you now,
+don't worry we will be clarifying them below.
+The main thing to remember is that using an Append-only Log
+to store your App's data makes it _much_ easier
+to build the App almost _immediately_ because records are never changed,
+history is preserved and can easily be referred to
+i.e: you have built-in debug-ability, traceability and stats.
 
-Once you are overcome the _initial_ learning curve, you will see that your Apps become easy to _reason_ about and you "_unlock_" many other possibilities for useful features and functionality that will _delight_ the users! You will get your work done much faster and more reliably, users will be happier with the UX and Product Owners/Managers will be able to _see_ how data is transformed in the app; _easily_ visualise the usage data and "flow" on analytics charts/graphs in realtime!
+Once you overcome the _initial_ learning curve,
+you will see that your Apps become _easy_ to _reason_ about
+and you will "_unlock_" many other possibilities for useful features
+and functionality that will _delight_ the users!
+You will get your work done much faster and more reliably,
+users will be happier with the UX and Product Owners/Managers
+will be able to _see_ how data is transformed in the app;
+_easily_ visualise the usage data and "flow" on analytics
+charts/graphs in _realtime_!
 
-**Append only logs are an attractive approach to database structures because:**
-- They allow you to process data in real-time. This makes them ideal for analytics. :bar_chart: 🤔
-- Data is never lost. Making them reliable for recovery during outages. As well ideal for version control and accountability. :closed_lock_with_key:
-- Columns are never deleted or altered so existing code/queries never "break" :negative_squared_cross_mark: :warning:. This is essential for "Zero Downtime Continuous Deployment".
-- A database migration can be applied before the application server is updated and the existing/current version of the application can continue to run like nothing happened. :sunglasses:
-- Database migrations are always backward compatible. :leftwards_arrow_with_hook:
+### Append-only Logs are an _excellent_ approach to data storage _because_:
 
-**Here are some examples of use cases where these characteristics may prove useful:**
++ Data is _never over-written_ therefore it cannot be corrupted or lost.
++ Field-level Version control and Accountability for all changes is _built-in_.
++ All changes to columns are _non-destructive additions_;
+Columns are never deleted or altered so existing code/queries never "break".
+This is _essential_ for "Zero Downtime Continuous Deployment".
+ A database migration can be applied
+***before*** the application server is updated
+and the existing/current version of the app
+can continue to run like nothing happened.
+- They allow you to process data in real-time.
+This makes them ideal for analytics. :bar_chart: 🤔
++ "Realtime backups" are hugely simplified
+(_compared to standard SQL/RDBMS_);
+you simply stream the record updates to multiple storage locations/zones
+and can easily recover from any "outage".
+
+### _Examples_ use cases where an Append-only Log is _useful_:
 
 - **CRM** - where customer data is updated and can be incorrectly altered, having the complete history of a record and being able to "time travel" through the change log is a really good idea. :clock10: :leftwards_arrow_with_hook: :white_check_mark:
 - **CMS/Blog** - being able to "roll back" content means you can invite your trusted readers / stakeholders to edit/improve your content without "fear" of it decaying. :lock_with_ink_pen:
