@@ -37,10 +37,11 @@ this makes it _easy_ to return/rewind to the _previous_ state.
 
 _Most_ functional programming languages
 (_e.g: Elixir, Elm, Lisp, Haskell, Clojure_)
-have an "_immutable data_" paradigm;
+have an "_immutable data_" pattern;
 data is always "transformed" never _mutated_.
-This makes it _much faster_ to build reliable/predictable apps
-because debugging apps is considerably easier when state is _always_ known.
+This makes it _much faster_ to build reliable/predictable apps.
+Code is simpler and debugging is considerably easier
+when state is _always_ known and never over-written.
 
 The "immutable data" principal in the Elm Architecture
 is what enables the
@@ -49,7 +50,7 @@ which is an _incredibly_ powerful way to debug an App.
 By using an Append-only Log for _all_ data stored by our Elixir/Phoenix Apps,
 we get a "time-travelling debugger" and _complete_ "analytics" _built-in_!
 
-It also means we are _never_ confused about how data/state was transformed:
+It also means we are **_never_ confused** about how data/state was transformed:
 
 <div align="center">
     <a href="https://twitter.com/jessitron/status/333228687208112128">
@@ -64,7 +65,7 @@ The main thing to remember is that using an Append-only Log
 to store your App's data makes it _much_ easier
 to build the App almost _immediately_ because records are never changed,
 history is preserved and can easily be referred to
-i.e: you have built-in debug-ability, traceability and stats.
+i.e: you have built-in "history"/traceability, debug-ability, and usage stats!
 
 Once you overcome the _initial_ learning curve,
 you will see that your Apps become _easy_ to _reason_ about
@@ -78,32 +79,59 @@ charts/graphs in _realtime_!
 
 ### Append-only Logs are an _excellent_ approach to data storage _because_:
 
-+ Data is _never over-written_ therefore it cannot be corrupted or lost.
-+ Field-level Version control and Accountability for all changes is _built-in_.
++ Data is _never over-written_ therefore it cannot be corrupted or "lost".
++ Field-level version control and accountability for all changes is _built-in_.
 + All changes to columns are _non-destructive additions_;
 Columns are never deleted or altered so existing code/queries never "break".
-This is _essential_ for "Zero Downtime Continuous Deployment".
- A database migration can be applied
-***before*** the application server is updated
+This is _essential_ for "**_Zero Downtime_ Continuous Deployment**".
+  + A database migration can be applied
+***before*** the app server is updated/refreshed
 and the existing/current version of the app
 can continue to run like nothing happened.
-- They allow you to process data in real-time.
-This makes them ideal for analytics. :bar_chart: 🤔
++ Data is stored as a "time series"
+therefore it can be used for analytics. 📊 🤔
 + "Realtime backups" are hugely simplified
 (_compared to standard SQL/RDBMS_);
 you simply stream the record updates to multiple storage locations/zones
 and can easily recover from any "outage".
 
-### _Examples_ use cases where an Append-only Log is _useful_:
+### _Examples_ where an Append-only Log is _useful_:
 
-- **CRM** - where customer data is updated and can be incorrectly altered, having the complete history of a record and being able to "time travel" through the change log is a really good idea. :clock10: :leftwards_arrow_with_hook: :white_check_mark:
-- **CMS/Blog** - being able to "roll back" content means you can invite your trusted readers / stakeholders to edit/improve your content without "fear" of it decaying. :lock_with_ink_pen:
-- **E-Commerce** - both for journey/story tracking and transaction reliability. Also, same applies for the Product catalog (which is a specific type of CMS); having version history dramatically increases confidence in the site both from an internal/vendor perspective and from end-users.
-This is especially useful for the reviews on e-commerce sites/apps where we want to be able to detect/see where people have updated their review following extended usage. e.g: did the product disintegrate after a short period of time? did the user give an initially unfavourable e.g 3/5 star review and over time come to realise that the product is actually exceptionally durable, well-designed and great value-for-money because it has lasted twice a long as any previous product they purchased to perform the same "job to be done"? :star::star::star::star::star:
-- **Chat** - a chat system should allow editing of previously sent messages for typos/inaccuracies.
-but that edit/revision history should be transparent not "message edited" (with no visibility of what changed). If a person deletes a message they should have to provide a comment indicating why they are "breaking" the chain (more on this later). :pencil2:
-- **Social Networking** - not allowing people to delete a message without leaving a clarifying comment to promote accountability for what people write. In many cases this can reduce hate speech. :rage2::speech_balloon:
-- **Most Other Consumer Web/Mobile Applications** - you name the app, there are ways in which an append-only log is applicable/useful/essential to the reliability/confidence in that app. :sparkling_heart:
+- **CRM** - where customer data is updated and can be incorrectly altered,
+having the complete history of a record and being able to "time travel"
+through the change log is a really good idea. 🕙 ↩️ 🕤 ✅  
+- **CMS/Blog** - being able to "roll back" content
+means you can invite your trusted readers / stakeholders
+to edit/improve your content
+without "fear" of it decaying. 🔏
+- **E-Commerce** - both for journey/cart tracking and transaction reliability. 🛒
+  + Also, the same applies for the Product catalog
+(which is a specific type of CMS);
+having version history dramatically increases confidence in the site both
+from an internal/vendor perspective and from end-users.
+This is _especially_ useful for the reviews on e-commerce sites/apps
+where we want to be able to detect/see where people have
+updated their review following extended usage.
+e.g: did the product disintegrate after a short period of time?
+did the user give an initially unfavourable
+e.g: a 3/5 star review and over time come to realise
+that the product is actually exceptionally durable,
+well-designed and great value-for-money because
+it has lasted twice a long as any previous product
+they purchased to perform the same "job to be done"? ⭐️ ⭐️ ⭐️ ⭐️ ⭐️
+- **Chat** - a chat system should allow editing
+of previously sent messages for typos/inaccuracies.
+But that edit/revision history should be transparent not just "message edited"
+(with no visibility of what changed). ✏️
+  + If a person deletes a message they should have to provide
+a comment indicating why they are "breaking" the conversation chain
+(_more on this later_).
+- **Social Networking** - not allowing people to delete a message
+without leaving a clarifying comment to promote accountability
+for what people write. In many cases this can reduce hate speech. 😡 💬 😇
+- **Most Other Consumer Web/Mobile Applications** - you name the app,
+there are ways in which an append-only log is applicable/useful/essential
+to the reliability/confidence in that app. 💖
 
 ## What?
 
