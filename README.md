@@ -104,7 +104,7 @@ This is _essential_ for "**_Zero Downtime_ Continuous Deployment**".
 and the existing/current version of the app
 can continue to run like nothing happened.
 + Data is stored as a "time series"
-therefore it can be used for analytics. 📊 🤔
+therefore it can be used for analytics. 📊 📈 
 + "Realtime backups" are hugely simplified
 (_compared to standard SQL/RDBMS_);
 you simply stream the record updates to multiple storage locations/zones
@@ -167,20 +167,17 @@ there is _always_ a way in which an append-only log
 is applicable/useful/essential
 to the reliability/confidence _users_ have in that app. 💖
 
-### Append-only Using _PostgreSQL_...?
+### Append-only Using _PostgreSQL_...?
 
 This example uses "stock" PostgreSQL and does not require any plugins.
 This is a _deliberate choice_ and we use this approach in "production".
 This means we can use _all_ of the power of Postgres,
 and deploy our app to any "Cloud" provider that supports Postgres.
 
-If your app ever "outgrows" Postgres,
-you can easily migrate to
-["CitusDB"](https://github.com/dwyl/how-to-choose-a-database/issues/4)
-
 Using an Append-only Log with UUIDs as Primary Keys
-is _all_ the "ground work" we need to ensure that _any_ app
-we build is _prepared_ to scale **_both_ Vertically _and_ Horizontally**. ✅ 🚀
+is _all_ the "ground work" <br />
+needed to ensure that _any_ app we build
+is _prepared_ to scale **_both_ Vertically _and_ Horizontally**. ✅ 🚀 <br />
 If/when our app reaches **10k writes/sec**
 we will be **_insanely_** "**successful**" by _definition_. 🦄 🎉
 For example: an AWS RDS (PostgreSQL)
@@ -192,8 +189,13 @@ making enough revenue to hire a _team_ of Database experts!
 
 **Bottom line**: _embrace_ Postgres for your App,
 you are in ["good company"](https://github.com/dwyl/learn-postgresql/issues/31).
-Postgres can handle whatever you throw at it,
-loves append-only data!
+<br />
+Postgres can handle whatever you throw at it
+and _loves_ append-only data!
+
+If your app ever "outgrows" Postgres,
+you can easily migrate to
+["CitusDB"](https://github.com/dwyl/how-to-choose-a-database/issues/4).
 
 ## Who?
 
@@ -212,9 +214,9 @@ The only pre-requisite for understanding this example/tutorial are:
 + Basic Phoenix Framework knowledge:
 https://github.com/dwyl/learn-phoenix-framework
 
-We _recommend_ that you follow the Phoenix Chat Example (_tutorial_):
+> We _recommend_ that you follow the Phoenix Chat Example (_tutorial_):
 https://github.com/dwyl/phoenix-chat-example
-for additional practice with Phoenix, Ecto and testing before (_or after_)
+for _additional practice_ with Phoenix, Ecto and testing before (_or after_)
 following _this_ example.
 
 ## How?
@@ -227,30 +229,38 @@ Make sure you have the following installed on your machine:
 + Phoenix: https://hexdocs.pm/phoenix/installation.html
 + PostgreSQL: https://www.postgresql.org/download
 
-Make sure you have a non-default PostgresQL user, with no more than `CREATEDB` privileges. If not, follow the steps below:
+Make sure you have a non-default PostgresQL user,
+with no more than `CREATEDB` privileges.
+If not, follow the steps below:
 
 + open psql by typing `psql` into your terminal
 + In psql, type:
   + `CREATE USER append_only;`
   + `ALTER USER append_only CREATEDB;`
 
-Default users are `Superuser`s who cannot have core actions like `DELETE` and `UPDATE` revoked. But with an additional user we can revoke these actions to ensure mutating actions don't occur accidentally (we will do this in step 2).
+Default users are `Superuser`s who cannot have core actions
+like `DELETE` and `UPDATE` revoked.
+But with an additional user we can revoke these actions t
+o ensure mutating actions don't occur accidentally (we will do this in step 2).
 
 ### 1. Getting started
 
 Make a new Phoenix app:
 
-```
+```sh
 mix phx.new append
 ```
 
-Type `y` when asked if you want to install the dependencies, then follow the instructions to `change directory`:
+Type `y` when asked if you want to install the dependencies,
+then follow the instructions to `change directory`:
 
-```
+```sh
 cd append
 ```
 
-then, go into your generated config file. In `config/dev.exs` and `config/test.exs` you should see a section that looks like this:
+then, go into your generated config file. In `config/dev.exs`
+and `config/test.exs` you should see a section that looks like this:
+
 ``` elixir
 # Configure your database
 config :append, Append.Repo,
@@ -276,7 +286,8 @@ mix ecto.create
 
 ### 2. Create the Schema
 
-We're going to use an address book as an example. run the following generator command to create our schema:
+We're going to use an address book as an example.
+run the following generator command to create our schema:
 
 ``` sh
 mix phx.gen.schema Address addresses name:string address_line_1:string address_line_2:string city:string postcode:string tel:string
@@ -286,7 +297,8 @@ This will create two new files:
 + `lib/append/address.ex`
 + `priv/repo/migrations/{timestamp}_create_addresses.exs`
 
-Before you follow the instructions in your terminal, we'll need to edit the generated migration file.
+Before you follow the instructions in your terminal,
+we'll need to edit the generated migration file.
 
 The generated migration file should look like this:
 
@@ -352,9 +364,15 @@ and **then** run:
 
 ### 3. Defining our Interface
 
-Now that we have no way to delete or update the data, we need to define the functions we'll use to access and insert the data. To do this we'll define an Elixir behaviour (https://hexdocs.pm/elixir/behaviours.html) with some predefined functions.
+Now that we have no way to delete or update the data,
+we need to define the functions we'll use to access and insert the data.
+To do this we'll define an
+[Elixir behaviour](https://hexdocs.pm/elixir/behaviours.html)
+with some predefined functions.
 
-The first thing we'll do is create the file for the behaviour. Create a file called `lib/append/append_only_log.ex` and add to it the following code:
+The first thing we'll do is create the file for the behaviour.
+Create a file called `lib/append/append_only_log.ex`
+and add to it the following code:
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
@@ -367,9 +385,15 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-Here, we're creating a macro, and defining it as a behaviour. The `__using__` macro is a callback that will be injected into any module that calls `use Append.AppendOnlyLog`. We'll define some functions in here that can be reused by different modules. (see https://elixir-lang.org/getting-started/alias-require-and-import.html#use for more info on `__using__`).
+Here, we're creating a macro, and defining it as a behaviour.
+The `__using__` macro is a callback that will be injected
+into any module that calls `use Append.AppendOnlyLog`.
+We'll define some functions in here that can be reused by different modules.
+see: https://elixir-lang.org/getting-started/alias-require-and-import.html#use
+for more info on the `__using__` macro.
 
-The next step in defining a behaviour is to provide some callbacks that must be provided.
+The next step in defining a behaviour
+is to provide some callbacks that must be provided.
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
