@@ -18,7 +18,8 @@ and _accountability_ ***guaranteed***
 because **_all_ history** of changes (_and who made them_)
 is **_always_ preserved**.
 
-## Why?
+## _Why_?
+
 If you have ever used the "***undo***" functionality in a program,
 you have _experienced_ the power of an Append-only Log.
 
@@ -76,6 +77,18 @@ users will be happier with the UX and Product Owners/Managers
 will be able to _see_ how data is transformed in the app;
 _easily_ visualise the usage data and "flow" on analytics
 charts/graphs in _realtime_!
+
+## What?
+
+Using an Append Only Log is an alternative to using Ecto's regular
+["CRUD"](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
+which allows overwriting and deleting data
+without "rollback" or "recoverability".
+In a "regular" Phoenix App each update _over-writes_ the state
+of the record so it's impossible to retrieve it's history
+without having to go digging through a backup
+which is often a time-consuming process or simply _unavailable_.
+
 
 ### Append-only Logs are an _excellent_ approach to data storage _because_:
 
@@ -149,28 +162,37 @@ there is _always_ a way in which an append-only log
 is applicable/useful/essential
 to the reliability/confidence _users_ have in that app. 💖
 
-## What?
-
-The **Phoenix Append Only Log Example is an immutable database structure**.
-
-It is an alternative to using Ecto's standard "CRUD" which allows overwriting and deleting data without "rollback" or "recoverability". In these instances each update over-writes the state of the record so it's impossible to retrieve it without having to go digging through a backup which is often a multi-day process, cost/time prohibitive or simply unavailable.
-
-Instead the Phoenix Append Only Log Example "tables" are only ever extended with new columns. This means that whilst changes can be displayed as you wish to your users, data is never irretrievable or lost to you on the back-end. It is also a time series database meaning that whatever activity occurs, we also know _when_ it occurred, making understanding chronology and how events occurred easy.
 
 ## Who?
 
-All developers who have a basic understanding of database storage in web development and want to "level up" their knowledge/skills. Those who want to improve the reliability of the product they are building. Those who want to understand more ("advanced") "distributed" application architecture
-including the ability to (optionally/incrementally) use IPFS and Blockchain.
+All developers who have a basic understanding of database storage
+in web apps and want to "level up" their knowledge/skills.
+People who want to improve the _reliability_ of the product they are building.
+Those who want to understand more ("advanced")
+"distributed" application architecture
+including the ability to (optionally/incrementally) use IPFS and/or Blockchain!
+
+### Prerequisites?
+
+The only pre-requisite for understanding this example/tutorial are:
+
++ Basic Elixir language syntax knowledge: https://github.com/dwyl/learn-elixir
++ Basic Phoenix Framework knowledgE: https://github.com/dwyl/learn-phoenix-framework
+
+We _recommend_ that you follow the Phoenix Chat Example (_tutorial_):
+https://github.com/dwyl/phoenix-chat-example
+for additional practice with Phoenix, Ecto and testing before (_or after_)
+following _this_ example.
 
 ## How?
 
 ### Before you start
 
-Make sure you have installed on your machine:
+Make sure you have the following installed on your machine:
 
 + Elixir: https://elixir-lang.org/install.html
 + Phoenix: https://hexdocs.pm/phoenix/installation.html
-+ PostgreSQL: https://www.postgresql.org/download/
++ PostgreSQL: https://www.postgresql.org/download
 
 Make sure you have a non-default PostgresQL user, with no more than `CREATEDB` privileges. If not, follow the steps below:
 
