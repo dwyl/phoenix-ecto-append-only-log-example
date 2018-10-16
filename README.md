@@ -92,7 +92,7 @@ without having to go digging through a backup
 which is often a time-consuming process or simply _unavailable_.
 
 
-### Append-only Logs are an _excellent_ approach to data storage _because_:
+### Append-only Logs are an _excellent_ approach to data storage _because_:
 
 + Data is _never over-written_ therefore it cannot be corrupted or "lost".
 + Field-level version control and accountability for all changes is _built-in_.
@@ -104,13 +104,13 @@ This is _essential_ for "**_Zero Downtime_ Continuous Deployment**".
 and the existing/current version of the app
 can continue to run like nothing happened.
 + Data is stored as a "time series"
-therefore it can be used for analytics. 📊 📈 
+therefore it can be used for analytics. 📊 📈
 + "Realtime backups" are hugely simplified
 (_compared to standard SQL/RDBMS_);
 you simply stream the record updates to multiple storage locations/zones
 and can easily recover from any "outage".
 
-### _Examples_ where an Append-only Log is _useful_:
+### _Examples_ where an Append-only Log is _useful_:
 
 - **CRM** - where customer data is updated and can be incorrectly altered,
 having the complete history of a record and being able to "time travel"
