@@ -42,8 +42,8 @@ you have _experienced_ the power of an Append-only Log.
 When data is stored in Append-only (_immutable_) Log,
 if a change is made to some data
 it always creates a _new_ state
-(_without altering history_)
-this makes it _easy_ to return/rewind to the _previous_ state.
+(_without altering history_).
+This makes it _easy_ to return/rewind to the _previous_ state.
 
 _Most_ functional programming languages
 (_e.g: Elixir, Elm, Lisp, Haskell, Clojure_)
@@ -56,8 +56,8 @@ when state is _always_ known and never over-written.
 The "immutable data" principal in the Elm Architecture
 is what enables the
 ["_Time Travelling Debugger_"](http://elm-lang.org/blog/time-travel-made-easy)
-which is an _incredibly_ powerful way to understand and debug an App.
-By using an Append-only Log for _all_ data stored by our Elixir/Phoenix Apps,
+which is an incredibly powerful way to understand and debug an app.
+By using an Append-only Log for _all_ data stored by our Elixir/Phoenix apps,
 we get a "time-travelling debugger" and _complete_ "analytics" _built-in_!
 
 It also means we are **_never_ confused** about how data/state was transformed:
@@ -71,30 +71,31 @@ It also means we are **_never_ confused** about how data/state was transformed:
 <br />
 
 > **Note**: If any these terms are unclear to you now,
-don't worry we will be clarifying them below. <br />
+don't worry, we will be clarifying them below. <br />
 The main thing to remember is that using an Append-only Log
-to store your App's data makes it _much_ easier
-to build the App because records are never modified,
+to store your app's data makes it _much_ easier
+to build the app because records are never modified,
 history is preserved and can easily be referred to
 i.e: you have built-in "history"/traceability, debug-ability, and usage stats!
 
 Once you overcome the _initial_ learning curve,
-you will see that your Apps become _easy_ to _reason_ about
+you will see that your apps become _easy_ to reason about
 and you will "_unlock_" many other possibilities for useful features
 and functionality that will _delight_
-the people _using_ your product/service! <br />
+the people using your product/service!   
+
 You will get your work done much faster and more reliably,
 users will be happier with the UX and Product Owners/Managers
 will be able to _see_ how data is transformed in the app;
 _easily_ visualise the usage data and "flow" on analytics
-charts/graphs in _realtime_!
+charts/graphs in _realtime_.
 
 ## Who?
 
 This example/tutorial is for
 _all_ developers who have a basic understanding of Phoenix,
 general knowledge of database storage in web apps
-and want to "level up" their knowledge/skills.
+and want to "level up" their knowledge/skills.  
 People who want to improve the _reliability_ of the product they are building.
 Those who want to understand more ("advanced")
 "distributed" application architecture
@@ -106,7 +107,7 @@ Using an Append Only Log is an _alternative_ to using Ecto's regular
 ["CRUD"](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
 which allows overwriting and deleting data
 without "rollback" or "recoverability".
-In a "regular" Phoenix App each update _over-writes_ the state
+In a "regular" Phoenix app each update _over-writes_ the state
 of the record so it's impossible to retrieve it's history
 without having to go digging through a backup
 which is often a time-consuming process or simply _unavailable_.
@@ -117,7 +118,7 @@ which is often a time-consuming process or simply _unavailable_.
 + Data is _never over-written_ therefore it cannot be corrupted or "lost".
 + Field-level version control and accountability for all changes is _built-in_.
 + All changes to columns are _non-destructive additions_;
-Columns are never deleted or altered so existing code/queries never "break".
+columns are never deleted or altered so existing code/queries never "break".
 This is _essential_ for "**_Zero Downtime_ Continuous Deployment**".
   + A database migration can be applied
 ***before*** the app server is updated/refreshed
@@ -146,18 +147,15 @@ where we want to be able to detect/see where people have
 updated their review following extended usage.
 e.g: did the product disintegrate after a short period of time?
 did the user give an initially unfavourable
-e.g: a 3/5 star review and over time come to realise
+review and over time come to realise
 that the product is actually exceptionally durable,
 well-designed and great value-for-money because
 it has lasted twice a long as any previous product
 they purchased to perform the same "job to be done"? ⭐️ ⭐️ ⭐️ ⭐️ ⭐️
 - **Chat** - a chat system should allow editing
-of previously sent messages for typos/inaccuracies.
-But that edit/revision history should be transparent not just "message edited"
-(with no visibility of what changed). ✏️
-  + If a person deletes a message they should have to provide
-a comment indicating why they are "breaking" the conversation chain
-(_more on this later_).
+of previously sent messages for typos/inaccuracies,
+but that edit/revision history should be transparent not just a "message edited"
+banner (with no visibility of what changed). ✏️
 - **Social Networking** - not allowing people to delete a message
 without leaving a clarifying comment to promote accountability
 for what people write. In many cases this can reduce hate speech. 😡 💬 😇
@@ -208,21 +206,19 @@ is _prepared_ to
 For example: an AWS RDS (PostgreSQL)
 [`db.m4.16xlarge` instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html)
 has **256GB** of RAM and can handle **10GB**/sec of "throughput".
-The instance has been _benchmarked_ at ***200k writes/second*** ... <br />
-If we _ever_  we will be
-making enough revenue to !
+The instance has been _benchmarked_ at ***200k writes/second*** .
 
-If/when our app reaches **10k writes/sec**
+If/when our/your app reaches **10k writes/sec**
 and needs to use **one** of these instances
 it will be **_insanely_** "**successful**" by _definition_. 🦄 🎉 <br />
 
 Don't _worry_ about storing _all_ the data,
 the insight it will give you will more than pay for itself!
-Once your App is successful you can hire a _team_ of database _experts_
+Once your app is successful you can hire a _team_ of database _experts_
 to fine-tune storing record history in a cheaper
 [object store](https://github.com/dwyl/technology-stack/issues/63).
 
-**Bottom line**: _embrace_ Postgres for your App,
+**Bottom line**: _embrace_ Postgres for your app,
 you are in
 [***good company***](https://github.com/dwyl/learn-postgresql/issues/31).
 <br />
@@ -261,15 +257,15 @@ Make sure you have a non-default PostgreSQL user,
 with no more than `CREATEDB` privileges.
 If not, follow the steps below:
 
-+ open psql by typing `psql` into your terminal
++ Open psql by typing `psql` into your terminal
 + In psql, type:
   + `CREATE USER append_only;`
   + `ALTER USER append_only CREATEDB;`
 
 Default users are `Superuser`s who cannot have core actions
 like `DELETE` and `UPDATE` revoked.
-But with an additional user we can revoke these actions t
-o ensure mutating actions don't occur accidentally (we will do this in step 2).
+But with an additional user we can revoke these actions to
+ensure mutating actions don't occur accidentally (we will do this in step 2).
 
 ### 1. Getting started
 
@@ -286,7 +282,7 @@ then follow the instructions to `change directory`:
 cd append
 ```
 
-then, go into your generated config file. In `config/dev.exs`
+Then go into your generated config file. In `config/dev.exs`
 and `config/test.exs` you should see a section that looks like this:
 
 ``` elixir
@@ -350,7 +346,7 @@ defmodule Append.Repo.Migrations.CreateAddresses do
 end
 ```
 
-We need to edit it to remove update and delete privileges for our user:
+We need to edit it to remove `update` and `delete` privileges for our user:
 
 ``` elixir
 defmodule Append.Repo.Migrations.CreateAddresses do
@@ -438,9 +434,12 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-These are the four functions we'll define in this macro to interface with the database. You may think it odd that we're defining an `update` function for our append only database, but we'll get to that later.
+These are the four functions we'll define in this macro to interface with the database.
+You may think it odd that we're defining an `update` function for our append-only
+database, but we'll get to that later.
 
-Callback definitions are similar to typespecs, in that you can provide the types that the functions expect to receive as arguments, and what they will return.
+Callback definitions are similar to typespecs, in that you can provide the types
+that the functions expect to receive as arguments, and what they will return.
 
 
 ``` elixir
@@ -564,13 +563,17 @@ Now run the tests again.
 
 Ah, an error.
 
-Now this error may seem a little obtuse. The error is on line 4 of address.ex? That's:
+Now this error may seem a little obtuse. The error is on line 4 of `address.ex`? That's:
 ``` elixir
 use Append.AppendOnlyLog
 ```
-That's because at compile time, this line is replaced with the contents of the macro, meaning the compiler isn't sure exactly which line of the macro is causing the error. This is one of the disadvantages of macros, and why they should be kept short, and used sparingly.
+That's because at compile time, this line is replaced with the contents of the
+macro, meaning the compiler isn't sure exactly which line of the macro is causing
+the error. This is one of the disadvantages of macros, and why they should be
+kept short (and used sparingly).
 
-Luckily, there is a way we can see the stacktrace of the macro. Add `location: :keep` to the `quote do`:
+Luckily, there is a way we can see the stack trace of the macro.
+Add `location: :keep` to the `quote do`:
 
 ``` elixir
 defmodule Append.AppendOnlyLog do
@@ -588,7 +591,7 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-Now, if we run `mix test` again, we should see where the error actually is:
+Now, if we run `mix test` again, we should see where the error _actually_ is:
 
 ``` sh
 ** (CompileError) lib/append/append_only_log.ex:20: Append.Address.__struct__/1 is undefined, cannot expand struct Append.Address
@@ -601,13 +604,16 @@ Line 20 of `append_only_log.ex`:
 %__MODULE__{}
 ```
 
-So we see that trying to access the `Append.Address` struct is causing the error. Now this function `Append.Address.__struct__/1` should be defined when we call:
+So we see that trying to access the `Append.Address` struct is causing the error.
+Now this function `Append.Address.__struct__/1` should be defined when we call:
 
 ``` elixir
 schema "addresses" do
 ```
 
-in the `Address` module. The problem lies in the way macros are injected into modules, and the order functions are evaluated. We could solve this by moving the `use Append.AppendOnlyLog` after the schema:
+in the `Address` module. The problem lies in the way macros are injected into
+modules, and the order functions are evaluated. We could solve this by moving the
+`use Append.AppendOnlyLog` after the schema:
 
 ``` elixir
 defmodule Append.Address do
@@ -623,7 +629,11 @@ defmodule Append.Address do
 end
 ```
 
-Now run `mix.test` and it should pass! But something doesn't quite feel right. We shouldn't need to include a 'use' macro halfway down a module to get our code to compile. And we don't! Elixir provides some fine grained control over the compile order of modules: https://hexdocs.pm/elixir/Module.html#module-module-attributes
+Now run `mix.test` and it should pass!
+But something doesn't quite feel right.
+We shouldn't need to include a 'use' macro halfway down a module to get our code to compile.
+And we don't!
+Elixir provides some fine grained control over the compile order of modules: https://hexdocs.pm/elixir/Module.html#module-module-attributes
 
 In this case, we want to use the `@before_compile` attribute.
 
@@ -657,9 +667,11 @@ end
 
 So here we add `@before_compile unquote(__MODULE__)` to `__using__`.
 
-`unquote(__MODULE__)` here, just means we want to use the `__before_compile__` macro defined in _this_ module (`AppendOnlyLog`), _not_ the calling module (`Address`).
+`unquote(__MODULE__)` here, just means we want to use the `__before_compile__`
+macro defined in _this_ module (`AppendOnlyLog`), _not_ the calling module (`Address`).
 
-Then, the code we put inside `__before_compile__` will be injected at the _end_ of the calling module, meaning the schema will already be defined, and our tests should pass.
+Then, the code we put inside `__before_compile__` will be injected at the _end_
+of the calling module, meaning the schema will already be defined, and our tests should pass.
 
 ```
 Finished in 0.1 seconds
@@ -668,9 +680,11 @@ Finished in 0.1 seconds
 
 #### 4.2 Get/Get By
 
-Now that we've done the hard parts, we'll implement the rest of the functionality for our Append Only Log.
+Now that we've done the _hard parts_, we'll implement the rest of the functionality
+for our Append Only Log.
 
-The `get` and `get by` functions should be fairly simple, we just need to forward the requests to the Repo. But first, a test.
+The `get` and `get by` functions should be fairly simple, we just need to forward
+the requests to the Repo. But first, a test.
 
 ``` elixir
 defmodule Append.AddressTest do
@@ -916,7 +930,7 @@ preventing us from duplicating it in the database.
 
 #### 4.4 Get history
 
-The final part of our append only database will be the functionality
+The final part of our append-only database will be the functionality
 to see the entire history of an item.
 
 As usual, we'll write a test first:
@@ -975,6 +989,10 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-You'll notice the new callback definition at the top of the file, and that we're now importing `Ecto.Query`. We have to make sure we import Ecto.Query inside our macro, so the scope matches where we end up calling it.
+You'll notice the new callback definition at the top of the file, and that we're
+now importing `Ecto.Query`.
+We have to make sure we import Ecto.Query inside our macro, so the scope matches
+where we end up calling it.
 
-Now run your tests, and you'll see that we're now able to view the whole history of the changes of all items in our database.
+Now run your tests, and you'll see that we're now able to view the whole history
+of the changes of all items in our database.
