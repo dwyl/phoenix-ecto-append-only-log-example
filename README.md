@@ -12,15 +12,20 @@
 A **_step-by-step_ example** to help _anyone_
 learn how build Phoenix Apps
 where all data is stored in an **_append-only_ log**. <br />
+
+## _Why_?
+
 Read/learn this if you want: <br />
-+ **confidence** in your mission-critical code
-+ **debugging** your app to be **_much_ easier**
-+ **analytics _built-in_** so you can easily derive usage metrics!
-+ **_all_ history** of changes to records (_and who made them_).
++ **Confidence** in your mission-critical code; know _exactly_ what's going on!
++ **Debugging** your app to be **_much_ easier** as you can _trace_
+a request/change all the way through your app!
++ **Analytics _built-in_** to your App so you can _effortlessly_ derive
+**user _behaviour_ metrics** i.e. **cohort analysis**
++ **_All_ history** of changes to data/records (_and who made them_)
+so _users_ of your App can "***undo***" changes with ease.
 
 <br />
 
-## _Why_?
 
 If you have ever used the "***undo***" functionality in a program,
 you have _experienced_ the power of an Append-only Log.
@@ -34,7 +39,8 @@ you have _experienced_ the power of an Append-only Log.
 </div>
 <br />
 
-When a change is made to some data
+When data is stored in Append-only (_immutable_) Log,
+if a change is made to some data
 it always creates a _new_ state
 (_without altering history_)
 this makes it _easy_ to return/rewind to the _previous_ state.
@@ -50,7 +56,7 @@ when state is _always_ known and never over-written.
 The "immutable data" principal in the Elm Architecture
 is what enables the
 ["_Time Travelling Debugger_"](http://elm-lang.org/blog/time-travel-made-easy)
-which is an _incredibly_ powerful way to debug an App.
+which is an _incredibly_ powerful way to understand and debug an App.
 By using an Append-only Log for _all_ data stored by our Elixir/Phoenix Apps,
 we get a "time-travelling debugger" and _complete_ "analytics" _built-in_!
 
@@ -65,22 +71,34 @@ It also means we are **_never_ confused** about how data/state was transformed:
 <br />
 
 > **Note**: If any these terms are unclear to you now,
-don't worry we will be clarifying them below.
+don't worry we will be clarifying them below. <br />
 The main thing to remember is that using an Append-only Log
 to store your App's data makes it _much_ easier
-to build the App almost _immediately_ because records are never changed,
+to build the App because records are never modified,
 history is preserved and can easily be referred to
 i.e: you have built-in "history"/traceability, debug-ability, and usage stats!
 
 Once you overcome the _initial_ learning curve,
 you will see that your Apps become _easy_ to _reason_ about
 and you will "_unlock_" many other possibilities for useful features
-and functionality that will _delight_ the users!
+and functionality that will _delight_
+the people _using_ your product/service! <br />
 You will get your work done much faster and more reliably,
 users will be happier with the UX and Product Owners/Managers
 will be able to _see_ how data is transformed in the app;
 _easily_ visualise the usage data and "flow" on analytics
 charts/graphs in _realtime_!
+
+## Who?
+
+This example/tutorial is for
+_all_ developers who have a basic understanding of Phoenix,
+general knowledge of database storage in web apps
+and want to "level up" their knowledge/skills.
+People who want to improve the _reliability_ of the product they are building.
+Those who want to understand more ("advanced")
+"distributed" application architecture
+including the ability to (optionally/incrementally) use IPFS and/or Blockchain!
 
 ## What?
 
@@ -114,9 +132,6 @@ and can easily recover from any "outage".
 
 ### _Examples_ where an Append-only Log is _useful_:
 
-- **CRM** - where customer data is updated and can be incorrectly altered,
-having the complete history of a record and being able to "time travel"
-through the change log is a really good idea. 🕙 ↩️ 🕤 ✅  
 - **CMS/Blog** - being able to "roll back" content
 means you can invite your trusted readers / stakeholders
 to edit/improve your content
@@ -146,12 +161,6 @@ a comment indicating why they are "breaking" the conversation chain
 - **Social Networking** - not allowing people to delete a message
 without leaving a clarifying comment to promote accountability
 for what people write. In many cases this can reduce hate speech. 😡 💬 😇
-+ **Banking/Finance** - _all_ transactions are append-only ledgers.
-If they were not accounting would be chaos and the world economy would collapse!
-When the "available balance" of an account is required,
-it is _calculated_ from the list/log of debit/credit transactions.
-(_a summary of the data in an account may be **cached**
-  in a database "view" but it is **never mutated**_)
 + ***Healthcare***: a patient's medical data gets captured/recorded once
 as a "snapshot" in time. The doctor or
 [ECG machine](https://en.wikipedia.org/wiki/Electrocardiography)
@@ -164,6 +173,15 @@ _streamed_ from the device to server and saved in a time-series data store.
   into charts/graphs. The "views" of the data are "temporary tables"
   which store the _aggregated_ or _computed_ data
   but do not touch the underlying log/stream.
++ **Banking/Finance** - _all_ transactions are append-only ledgers.
+If they were not accounting would be chaos and the world economy would collapse!
+When the "available balance" of an account is required,
+it is _calculated_ from the list/log of debit/credit transactions.
+(_a summary of the data in an account may be **cached**
+  in a database "view" but it is **never mutated**_)
+- **CRM** - where customer data is updated and can be incorrectly altered,
+having the complete history of a record and being able to "time travel"
+through the change log is a really good idea. 🕙 ↩️ 🕤 ✅  
 - **Most Other Web/Mobile Applications** - you name the app,
 there is _always_ a way in which an append-only log
 is applicable/useful/essential
@@ -176,40 +194,45 @@ This is a _deliberate choice_ and we use this approach in "production".
 This means we can use _all_ of the power of Postgres,
 and deploy our app to any "Cloud" provider that supports Postgres.
 
+### Will it _Scale_?
+
+Your PostgreSQL database will _not_ be the "bottleneck" in your app/stack.
+
 Using an Append-only Log with UUIDs as Primary Keys
-is _all_ the "ground work" <br />
-needed to ensure that _any_ app we build
+is _all_ the "ground work" needed <br />
+to ensure that _any_ app we build
 is _prepared_ to
 [**scale _both_ Vertically _and_ Horizontally**](https://stackoverflow.com/questions/11707879/difference-between-scaling-horizontally-and-vertically-for-databases).
 ✅ 🚀 <br />
 
-If/when our app reaches **10k writes/sec**
-we will be **_insanely_** "**successful**" by _definition_. 🦄 🎉 <br />
 For example: an AWS RDS (PostgreSQL)
 [`db.m4.16xlarge` instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html)
-has **256GB** of RAM and can handle **10GB**/second of "throughput".
+has **256GB** of RAM and can handle **10GB**/sec of "throughput".
 The instance has been _benchmarked_ at ***200k writes/second*** ... <br />
-If we _ever_ need to use **one** of these instances we will be
-making enough revenue to hire a _team_ of Database experts!
+If we _ever_  we will be
+making enough revenue to !
+
+If/when our app reaches **10k writes/sec**
+and needs to use **one** of these instances
+it will be **_insanely_** "**successful**" by _definition_. 🦄 🎉 <br />
+
+Don't _worry_ about storing _all_ the data,
+the insight it will give you will more than pay for itself!
+Once your App is successful you can hire a _team_ of database _experts_
+to fine-tune storing record history in a cheaper
+[object store](https://github.com/dwyl/technology-stack/issues/63).
 
 **Bottom line**: _embrace_ Postgres for your App,
-you are in ["good company"](https://github.com/dwyl/learn-postgresql/issues/31).
+you are in
+[***good company***](https://github.com/dwyl/learn-postgresql/issues/31).
 <br />
 Postgres can handle whatever you throw at it
 and _loves_ append-only data!
 
 If your app ever "outgrows" Postgres,
 you can easily migrate to
-["CitusDB"](https://github.com/dwyl/how-to-choose-a-database/issues/4).
+[**CitusDB**](https://github.com/dwyl/how-to-choose-a-database/issues/4).
 
-## Who?
-
-All developers who have a basic understanding of database storage
-in web apps and want to "level up" their knowledge/skills.
-People who want to improve the _reliability_ of the product they are building.
-Those who want to understand more ("advanced")
-"distributed" application architecture
-including the ability to (optionally/incrementally) use IPFS and/or Blockchain!
 
 ### Prerequisites?
 
@@ -234,7 +257,7 @@ Make sure you have the following installed on your machine:
 + Phoenix: https://hexdocs.pm/phoenix/installation.html
 + PostgreSQL: https://www.postgresql.org/download
 
-Make sure you have a non-default PostgresQL user,
+Make sure you have a non-default PostgreSQL user,
 with no more than `CREATEDB` privileges.
 If not, follow the steps below:
 
