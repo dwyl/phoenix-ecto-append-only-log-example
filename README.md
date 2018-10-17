@@ -76,7 +76,6 @@ The main thing to remember is that using an Append-only Log
 to store your app's data makes it _much_ easier
 to build the app because records are never modified,
 history is preserved and can easily be referred to
-i.e: you have built-in "history"/traceability, debug-ability, and usage stats!
 
 Once you overcome the _initial_ learning curve,
 you will see that your apps become _easy_ to reason about
@@ -99,7 +98,8 @@ and want to "level up" their knowledge/skills.
 People who want to improve the _reliability_ of the product they are building.
 Those who want to understand more ("advanced")
 "distributed" application architecture
-including the ability to (optionally/incrementally) use IPFS and/or Blockchain!
+including the ability to (optionally/incrementally) build on this by using
+IPFS and/or Blockchain in the future!
 
 ## What?
 
