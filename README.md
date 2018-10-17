@@ -4,19 +4,21 @@
 
 [![Build Status](https://img.shields.io/travis/dwyl/phoenix-ecto-append-only-log-example/master.svg?style=flat-square)](https://travis-ci.org/dwyl/phoenix-ecto-append-only-log-example)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-ecto-append-only-log-example/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-ecto-append-only-log-example?branch=master)
-[![HitCount](http://hits.dwyl.io/dwyl/phoenix-ecto-append-only-log-example.svg)](https://github.com/dwyl/phoenix-ecto-append-only-log-example)
+<!-- [![HitCount](http://hits.dwyl.io/dwyl/phoenix-ecto-append-only-log-example.svg)](https://github.com/dwyl/phoenix-ecto-append-only-log-example) -->
 </div>
 <br />
 
 
 A **_step-by-step_ example** to help _anyone_
-learn how build Phoenix (Elixir) Apps
-where all data is stored in an **_append-only_** (_immutable_) **log**.
-Learn this if you want **debugging** your app to be **_much_ easier**,
-comprehensive **analytics** to be ***built-in***
-and _accountability_ ***guaranteed***
-because **_all_ history** of changes (_and who made them_)
-is **_always_ preserved**.
+learn how build Phoenix Apps
+where all data is stored in an **_append-only_ log**. <br />
+Read/learn this if you want: <br />
++ **confidence** in your mission-critical code
++ **debugging** your app to be **_much_ easier**
++ **analytics _built-in_** so you can easily derive usage metrics!
++ **_all_ history** of changes to records (_and who made them_).
+
+<br />
 
 ## _Why_?
 
@@ -185,8 +187,8 @@ If/when our app reaches **10k writes/sec**
 we will be **_insanely_** "**successful**" by _definition_. 🦄 🎉 <br />
 For example: an AWS RDS (PostgreSQL)
 [`db.m4.16xlarge` instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html)
-has **256GB** of RAM and can handle **10GB**/second of "throughput". <br />
-This instance has been _benchmarked_ at ***200k writes/second*** ... <br />
+has **256GB** of RAM and can handle **10GB**/second of "throughput".
+The instance has been _benchmarked_ at ***200k writes/second*** ... <br />
 If we _ever_ need to use **one** of these instances we will be
 making enough revenue to hire a _team_ of Database experts!
 
