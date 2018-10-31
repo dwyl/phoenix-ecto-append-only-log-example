@@ -14,12 +14,6 @@ defmodule Append.AddressTest do
 
       assert Address.get(item.entry_id) == item
     end
-
-    test "get_by/1" do
-      {:ok, item} = insert_address()
-
-      assert Address.get_by(name: "Thor") == item
-    end
   end
 
   test "update item in database" do

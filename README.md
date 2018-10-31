@@ -425,7 +425,6 @@ defmodule Append.AppendOnlyLog do
 
   @callback insert
   @callback get
-  @callback get_by
   @callback update
 
   defmacro __using__(_opts) do
@@ -434,7 +433,7 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-These are the four functions we'll define in this macro to interface with the database.
+These are the functions we'll define in this macro to interface with the database.
 You may think it odd that we're defining an `update` function for our append-only
 database, but we'll get to that later.
 
@@ -448,7 +447,6 @@ defmodule Append.AppendOnlyLog do
 
   @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
-  @callback get_by(Keyword.t() | map) ::  Ecto.Schema.t() | nil | no_return()
   @callback update(Ecto.Schema.t(), struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
 
   defmacro __using__(_opts) do
@@ -459,9 +457,6 @@ defmodule Append.AppendOnlyLog do
       end
 
       def get(id) do
-      end
-
-      def get_by(clauses) do
       end
 
       def update(item, attrs) do
@@ -678,13 +673,13 @@ Finished in 0.1 seconds
 4 tests, 0 failures
 ```
 
-#### 4.2 Get/Get By
+#### 4.2 Get
 
 Now that we've done the _hard parts_, we'll implement the rest of the functionality
 for our Append Only Log.
 
-The `get` and `get by` functions should be fairly simple, we just need to forward
-the requests to the Repo. But first, a test.
+The `get` function should be fairly simple, we just need to forward
+the request to the Repo. But first, a test.
 
 ``` elixir
 defmodule Append.AddressTest do
@@ -694,12 +689,6 @@ defmodule Append.AddressTest do
       {:ok, item} = insert_address()
 
       assert Address.get(item.id) == item
-    end
-
-    test "get_by/1" do
-      {:ok, item} = insert_address()
-
-      assert Address.get_by(name: "Thor") == item
     end
   end
 
@@ -729,10 +718,6 @@ defmodule Append.AppendOnlyLog do
       ...
       def get(id) do
         Repo.get(__MODULE__, id)
-      end
-
-      def get_by(clauses) do
-        Repo.get_by(__MODULE__, clauses)
       end
       ...
     end
