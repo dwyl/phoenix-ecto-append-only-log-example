@@ -12,7 +12,7 @@ defmodule Append.AddressTest do
     test "get/1" do
       {:ok, item} = insert_address()
 
-      assert Address.get(item.id) == item
+      assert Address.get(item.entry_id) == item
     end
 
     test "get_by/1" do
@@ -31,15 +31,24 @@ defmodule Append.AddressTest do
     assert updated_item.tel != item.tel
   end
 
+  test "get updated item" do
+    {:ok, item} = insert_address()
+
+    {:ok, updated_item} = Address.update(item, %{tel: "0123444444"})
+
+    assert Address.get(item.entry_id) == updated_item
+  end
+
   test "get history of item" do
     {:ok, item} = insert_address()
 
-    {:ok, updated_item} = Address.update(item, %{
-      address_line_1: "12",
-      address_line_2: "Kvadraturen",
-      city: "Oslo",
-      postcode: "NW SCA",
-    })
+    {:ok, updated_item} =
+      Address.update(item, %{
+        address_line_1: "12",
+        address_line_2: "Kvadraturen",
+        city: "Oslo",
+        postcode: "NW SCA"
+      })
 
     history = Address.get_history(updated_item)
 
