@@ -8,11 +8,18 @@ defmodule Append.AddressTest do
     assert item.name == "Thor"
   end
 
-  describe "get item from database" do
+  describe "get items from database" do
     test "get/1" do
       {:ok, item} = insert_address()
 
       assert Address.get(item.entry_id) == item
+    end
+
+    test "all/0" do
+      {:ok, _} = insert_address()
+      {:ok, _} = insert_address("Loki")
+
+      assert length(Address.all()) == 2
     end
   end
 
@@ -31,6 +38,14 @@ defmodule Append.AddressTest do
     {:ok, updated_item} = Address.update(item, %{tel: "0123444444"})
 
     assert Address.get(item.entry_id) == updated_item
+  end
+
+  test "all/0 does not include old items" do
+    {:ok, item} = insert_address()
+    {:ok, _} = insert_address("Loki")
+    {:ok, _} = Address.update(item, %{postcode: "W2 3EC"})
+
+    assert length(Address.all()) == 2
   end
 
   test "get history of item" do
@@ -52,9 +67,9 @@ defmodule Append.AddressTest do
     assert Map.fetch(h2, :city) == {:ok, "Oslo"}
   end
 
-  def insert_address do
+  def insert_address(name \\ "Thor") do
     Address.insert(%{
-      name: "Thor",
+      name: name,
       address_line_1: "The Hall",
       address_line_2: "Valhalla",
       city: "Asgard",
@@ -69,6 +84,13 @@ defmodule Append.AddressTest do
       {:ok, _} = Address.delete(item)
 
       assert Address.get(item.entry_id) == nil
+    end
+
+    test "deleted items are not retrieved with 'all'" do
+      {:ok, item} = insert_address()
+      {:ok, _} = Address.delete(item)
+
+      assert length(Address.all()) == 0
     end
   end
 end

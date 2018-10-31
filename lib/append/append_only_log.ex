@@ -8,6 +8,7 @@ defmodule Append.AppendOnlyLog do
 
   @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
+  @callback all() :: [Ecto.Schema.t()]
   @callback update(Ecto.Schema.t(), struct) ::
               {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get_history(Ecto.Schema.t()) :: [Ecto.Schema.t()] | no_return()
@@ -43,7 +44,20 @@ defmodule Append.AppendOnlyLog do
 
         query = from(m in subquery(sub), where: not m.deleted, select: m)
 
-        item = Repo.one(query)
+        Repo.one(query)
+      end
+
+      def all do
+        sub =
+          from(m in __MODULE__,
+            distinct: m.entry_id,
+            order_by: [desc: :inserted_at],
+            select: m
+          )
+
+        query = from(m in subquery(sub), where: not m.deleted, select: m)
+
+        Repo.all(query)
       end
 
       def update(%__MODULE__{} = item, attrs) do

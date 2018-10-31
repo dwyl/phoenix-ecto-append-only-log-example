@@ -425,6 +425,7 @@ defmodule Append.AppendOnlyLog do
 
   @callback insert
   @callback get
+  @callback all
   @callback update
   @callback delete
 
@@ -448,6 +449,7 @@ defmodule Append.AppendOnlyLog do
 
   @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
+  @callback all() :: [Ecto.Schema.t()]
   @callback update(Ecto.Schema.t(), struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback delete(Ecto.Schema.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
 
@@ -459,6 +461,9 @@ defmodule Append.AppendOnlyLog do
       end
 
       def get(id) do
+      end
+
+      def all() do
       end
 
       def update(item, attrs) do
@@ -655,6 +660,9 @@ defmodule Append.AppendOnlyLog do
       def get(id) do
       end
 
+      def all() do
+      end
+
       def update(item, attrs) do
       end
     end
@@ -675,28 +683,35 @@ Finished in 0.1 seconds
 4 tests, 0 failures
 ```
 
-#### 4.2 Get
+#### 4.2 Get/All
 
 Now that we've done the _hard parts_, we'll implement the rest of the functionality
 for our Append Only Log.
 
-The `get` function should be fairly simple, we just need to forward
-the request to the Repo. But first, a test.
+The `get` and `all` functions should be fairly simple, we just need to forward
+the requests to the Repo. But first, some tests.
 
 ``` elixir
 defmodule Append.AddressTest do
   ...
-  describe "get item from database" do
+  describe "get items from database" do
     test "get/1" do
       {:ok, item} = insert_address()
 
       assert Address.get(item.id) == item
     end
+
+    test "all/0" do
+      {:ok, item} = insert_address()
+      {:ok, item_2} = insert_address("Loki")
+
+      assert length(Address.all()) == 2
+    end
   end
 
-  def insert_address do
+  def insert_address(name \\ "Thor") do
     Address.insert(%{
-      name: "Thor",
+      name: name,
       address_line_1: "The Hall",
       address_line_2: "Valhalla",
       city: "Asgard",
@@ -720,6 +735,10 @@ defmodule Append.AppendOnlyLog do
       ...
       def get(id) do
         Repo.get(__MODULE__, id)
+      end
+
+      def all do
+        Repo.all(__MODULE__)
       end
       ...
     end
@@ -918,7 +937,7 @@ preventing us from duplicating it in the database.
 
 We also remove the `:inserted_at` and `:updated_at` fields. Again, if we leave those in, they'll be copied over from the old item, instead of being newly generated.
 
-Now we'll add another test, making sure our code so far is working as we expect it to:
+Now we'll add some more tests, making sure our code so far is working as we expect it to:
 
 ``` elixir
 defmodule Append.AddressTest do
@@ -930,11 +949,19 @@ defmodule Append.AddressTest do
 
     assert Address.get(item.id) == updated_item
   end
+
+  test "all/0 does not include old items" do
+    {:ok, item} = insert_address()
+    {:ok, _} = insert_address("Loki")
+    {:ok, _} = Address.update(item, %{postcode: "W2 3EC"})
+
+    assert length(Address.all()) == 2
+  end
   ...
 end
 ```
 
-Here we're testing that the item we receive from our 'get' function is the new, updated item.
+Here we're testing that the items we receive from our 'get' and 'all' functions are the new, updated items.
 
 Run this test and...
 
@@ -947,9 +974,18 @@ Run this test and...
      right: %Append.Address{... tel: "0123444444"}
      stacktrace:
        test/append/address_test.exs:39: (test)
+
+2) test all/0 does not include old items (Append.AddressTest)
+     test/append/address_test.exs:43
+     Assertion with == failed
+     code:  assert length(Address.all()) == 2
+     left:  3
+     right: 2
+     stacktrace:
+       test/append/address_test.exs:48: (test)
 ```
 
-We're still getting the old item. 
+We're still getting the old items. 
 
 To fix this we'll have to revisit our `get` function.
 
@@ -972,7 +1008,7 @@ def get(entry_id) do
       select: m
     )
 
-  item = Repo.one(query)
+  Repo.one(query)
 end
 ```
 
@@ -1019,11 +1055,28 @@ def get(entry_id) do
       select: m
     )
 
-  item = Repo.one(query)
+  Repo.one(query)
 end
 ```
 
 This will order our items in descending order by the inserted date, and take the most recent one.
+
+We'll use the same query in our `all` function, but replacing the `limit: 1` with `distinct: entry_id`:
+
+``` elixir
+def all do
+  sub =
+    from(m in __MODULE__,
+      distinct: m.entry_id,
+      order_by: [desc: :inserted_at],
+      select: m
+    )
+
+  Repo.all(query)
+end
+```
+
+This ensures we get more than one item, but only the most recent of each `entry_id`.
 
 
 #### 4.4 Get history
@@ -1154,6 +1207,13 @@ describe "delete:" do
 
       assert Address.get(item.entry_id) == nil
     end
+
+    test "deleted items are not retrieved with 'all'" do
+      {:ok, item} = insert_address()
+      {:ok, _} = Address.delete(item)
+
+      assert length(Address.all()) == 0
+    end
   end
 ```
 
@@ -1172,7 +1232,7 @@ end
 
 It acts just the same as the update function, but adds a value of `deleted: true`. But this is only half of the story. 
 
-We also need to make sure we don't return any deleted items when they're requested. So again, we'll have to edit our `get` function:
+We also need to make sure we don't return any deleted items when they're requested. So again, we'll have to edit our `get` and `all` functions:
 
 ``` elixir
 def get(entry_id) do
@@ -1187,7 +1247,20 @@ def get(entry_id) do
 
   query = from(m in subquery(sub), where: not m.deleted, select: m)
 
-  item = Repo.one(query)
+  Repo.one(query)
+end
+
+def all do
+  sub =
+    from(m in __MODULE__,
+      distinct: m.entry_id,
+      order_by: [desc: :inserted_at],
+      select: m
+    )
+
+  query = from(m in subquery(sub), where: not m.deleted, select: m)
+
+  Repo.all(query)
 end
 ```
 
