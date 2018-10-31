@@ -62,4 +62,13 @@ defmodule Append.AddressTest do
       tel: "0800123123"
     })
   end
+
+  describe "delete:" do
+    test "deleted items are not retrieved with 'get'" do
+      {:ok, item} = insert_address()
+      {:ok, _} = Address.delete(item)
+
+      assert Address.get(item.entry_id) == nil
+    end
+  end
 end

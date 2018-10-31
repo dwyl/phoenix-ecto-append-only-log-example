@@ -426,6 +426,7 @@ defmodule Append.AppendOnlyLog do
   @callback insert
   @callback get
   @callback update
+  @callback delete
 
   defmacro __using__(_opts) do
     ...
@@ -448,6 +449,7 @@ defmodule Append.AppendOnlyLog do
   @callback insert(struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback get(integer) :: Ecto.Schema.t() | nil | no_return()
   @callback update(Ecto.Schema.t(), struct) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @callback delete(Ecto.Schema.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
 
   defmacro __using__(_opts) do
     quote do
@@ -961,7 +963,7 @@ The first issue is that we're still using the `id` to get the item. As we know, 
 
 Luckily, we have another way to reference the item. Our `entry_id` that we created earlier. Let's use that in our query:
 
-```
+``` elixir
 def get(entry_id) do
   query =
     from(
@@ -1026,7 +1028,7 @@ This will order our items in descending order by the inserted date, and take the
 
 #### 4.4 Get history
 
-The final part of our append-only database will be the functionality
+A useful part of our append-only database will be the functionality
 to see the entire history of an item.
 
 As usual, we'll write a test first:
@@ -1068,7 +1070,7 @@ defmodule Append.AppendOnlyLog do
   ...
   defmacro __before_compile__(_env) do
     quote do
-      import Ecto.Query, only: [from: 2]
+      import Ecto.Query
 
       ...
       def get_history(%__MODULE__{} = item) do
@@ -1092,3 +1094,103 @@ where we end up calling it.
 
 Now run your tests, and you'll see that we're now able to view the whole history
 of the changes of all items in our database.
+
+#### 4.5 Delete
+
+As you may realise, even though we are using an append only database, we still need some way to "delete" items. 
+
+Of course they won't actually be deleted, merely marked as "inactive", so they don't show anywhere unless we specifically want them to (For example in our history function).
+
+To implement this functionality, we'll need to add a field to our schema, and to the cast function in our changeset.
+
+``` elixir
+defmodule Append.Address do
+  schema "addresses" do
+    ...
+    field(:deleted, :boolean, default: false)
+    ...
+  end
+
+  def changeset(address, attrs) do
+    address
+    |> insert_entry_id()
+    |> cast(attrs, [
+      ...,
+      :deleted
+    ])
+    |> validate_required([
+      ...
+    ])
+  end
+end
+```
+
+and a new migration:
+```
+mix ecto.gen.migration add_deleted
+```
+
+``` elixir
+defmodule Append.Repo.Migrations.AddDeleted do
+  use Ecto.Migration
+
+  def change do
+    alter table("addresses") do
+      add(:deleted, :boolean, default: false)
+    end
+  end
+end
+```
+
+This adds a `boolean` field, with a default value of `false`. We'll use this to determine whether a given item is "deleted" or not.
+
+As usual, before we implement it, we'll add a test for our expected functionality.
+
+``` elixir
+describe "delete:" do
+    test "deleted items are not retrieved with 'get'" do
+      {:ok, item} = insert_address()
+      {:ok, _} = Address.delete(item)
+
+      assert Address.get(item.entry_id) == nil
+    end
+  end
+```
+
+Our delete function is fairly simple:
+
+``` elixir
+def delete(%__MODULE__{} = item) do
+  item
+  |> Map.put(:id, nil)
+  |> Map.put(:inserted_at, nil)
+  |> Map.put(:updated_at, nil)
+  |> __MODULE__.changeset(%{deleted: true})
+  |> Repo.insert()
+end
+```
+
+It acts just the same as the update function, but adds a value of `deleted: true`. But this is only half of the story. 
+
+We also need to make sure we don't return any deleted items when they're requested. So again, we'll have to edit our `get` function:
+
+``` elixir
+def get(entry_id) do
+  sub =
+    from(
+      m in __MODULE__,
+      where: m.entry_id == ^entry_id,
+      order_by: [desc: :inserted_at],
+      limit: 1,
+      select: m
+    )
+
+  query = from(m in subquery(sub), where: not m.deleted, select: m)
+
+  item = Repo.one(query)
+end
+```
+
+What we're doing here is taking our original query, then performing another query on the result of that, only returning the item if it has not been marked as `deleted`.
+
+So now, when we run our tests, we should see that we're succesfully ignoring "deleted" items.

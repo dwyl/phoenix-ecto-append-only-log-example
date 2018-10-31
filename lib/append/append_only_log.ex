@@ -23,7 +23,7 @@ defmodule Append.AppendOnlyLog do
 
   defmacro __before_compile__(_env) do
     quote do
-      import Ecto.Query, only: [from: 2]
+      import Ecto.Query
 
       def insert(attrs) do
         %__MODULE__{}
@@ -32,7 +32,7 @@ defmodule Append.AppendOnlyLog do
       end
 
       def get(entry_id) do
-        query =
+        sub =
           from(
             m in __MODULE__,
             where: m.entry_id == ^entry_id,
@@ -40,6 +40,8 @@ defmodule Append.AppendOnlyLog do
             limit: 1,
             select: m
           )
+
+        query = from(m in subquery(sub), where: not m.deleted, select: m)
 
         item = Repo.one(query)
       end
@@ -61,6 +63,15 @@ defmodule Append.AppendOnlyLog do
           )
 
         Repo.all(query)
+      end
+
+      def delete(%__MODULE__{} = item) do
+        item
+        |> Map.put(:id, nil)
+        |> Map.put(:inserted_at, nil)
+        |> Map.put(:updated_at, nil)
+        |> __MODULE__.changeset(%{deleted: true})
+        |> Repo.insert()
       end
     end
   end
