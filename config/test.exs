@@ -11,7 +11,7 @@ config :logger, level: :warn
 
 # Configure your database
 config :append, Append.Repo,
-  adapter: Ecto.Adapters.Postgres,
+migration_timestamps: [type: :naive_datetime_usec],
   username: "append_only",
   password: "postgres",
   database: "append_test",

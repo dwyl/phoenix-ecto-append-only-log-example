@@ -30,3 +30,6 @@ npm-debug.log
 /config/*.secret.exs
 
 .elixir_ls
+
+Dockerfile
+docker-compose.yml
