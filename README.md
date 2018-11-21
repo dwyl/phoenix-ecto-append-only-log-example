@@ -288,8 +288,7 @@ and `config/test.exs` you should see a section that looks like this:
 
 ``` elixir
 # Configure your database
-config :append, Append.Repo,
-  adapter: Ecto.Adapters.Postgres,
+config :append, Append.Repo
   username: "postgres",
   password: "postgres",
   ...
@@ -301,6 +300,15 @@ Change the username to your non-default PostgreSQL user:
   ...
   username: "append_only",
   ...
+```
+
+Define the [datetime type](https://hexdocs.pm/ecto/Ecto.Schema.html#module-the-datetime-types) for the timestamp.
+
+```elixir
+config :append, Append.Repo
+  migration_timestamps: [type: :naive_datetime_usec],
+  username: "postgres",
+  password: "postgres",
 ```
 
 Once you've done this, `create the database` for your app:
@@ -367,6 +375,14 @@ end
 
 > For reference, this is what your migration file _should_ look like now:
 [priv/repo/migrations/20180912142549_create_addresses.exs](https://github.com/dwyl/phoenix-ecto-append-only-log-example/pull/2/files#diff-db55bfd345510f8bbb29d36daadf7061R21)
+
+In `lib/append/address.ex` file define the timestamps option to use the `naive_datetime_usec` type
+
+```elixir
+@timestamps_opts [type: :naive_datetime_usec]
+schema "addresses" do
+  ...
+```
 
 Once this is done, run:
 ``` sh
