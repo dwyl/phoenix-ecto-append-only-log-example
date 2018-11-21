@@ -1,7 +1,9 @@
 defmodule AppendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :append
 
-  socket "/socket", AppendWeb.UserSocket
+  socket "/socket", AppendWeb.UserSocket,
+    websocket: true,
+    longpoll: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -24,7 +26,7 @@ defmodule AppendWeb.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Poison
+    json_decoder: Jason
 
   plug Plug.MethodOverride
   plug Plug.Head

@@ -13,9 +13,10 @@ config :append, AppendWeb.Endpoint,
   check_origin: false,
   watchers: [
     node: [
-      "node_modules/brunch/bin/brunch",
-      "watch",
-      "--stdin",
+      "node_modules/webpack/bin/webpack.js",
+      "--mode",
+      "development",
+      "--watch-stdin",
       cd: Path.expand("../assets", __DIR__)
     ]
   ]
@@ -56,7 +57,7 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :append, Append.Repo,
-  adapter: Ecto.Adapters.Postgres,
+  migration_timestamps: [type: :naive_datetime_usec],
   username: "append_only",
   password: "postgres",
   database: "append_dev",

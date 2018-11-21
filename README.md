@@ -260,6 +260,7 @@ If not, follow the steps below:
 + Open psql by typing `psql` into your terminal
 + In psql, type:
   + `CREATE USER append_only;`
+  + `ALTER USER append_only WITH PASSWORD 'postgres';` (optional, only if you want to define the password for the  new user)
   + `ALTER USER append_only CREATEDB;`
 
 Default users are `Superuser`s who cannot have core actions
@@ -287,8 +288,7 @@ and `config/test.exs` you should see a section that looks like this:
 
 ``` elixir
 # Configure your database
-config :append, Append.Repo,
-  adapter: Ecto.Adapters.Postgres,
+config :append, Append.Repo
   username: "postgres",
   password: "postgres",
   ...
@@ -300,6 +300,15 @@ Change the username to your non-default PostgreSQL user:
   ...
   username: "append_only",
   ...
+```
+
+Define the [datetime type](https://hexdocs.pm/ecto/Ecto.Schema.html#module-the-datetime-types) for the timestamp.
+
+```elixir
+config :append, Append.Repo
+  migration_timestamps: [type: :naive_datetime_usec],
+  username: "postgres",
+  password: "postgres",
 ```
 
 Once you've done this, `create the database` for your app:
@@ -367,6 +376,14 @@ end
 > For reference, this is what your migration file _should_ look like now:
 [priv/repo/migrations/20180912142549_create_addresses.exs](https://github.com/dwyl/phoenix-ecto-append-only-log-example/pull/2/files#diff-db55bfd345510f8bbb29d36daadf7061R21)
 
+In `lib/append/address.ex` file define the timestamps option to use the `naive_datetime_usec` type
+
+```elixir
+@timestamps_opts [type: :naive_datetime_usec]
+schema "addresses" do
+  ...
+```
+
 Once this is done, run:
 ``` sh
 mix ecto.migrate
@@ -391,7 +408,7 @@ and **then** run:
 Now that we have no way to delete or update the data,
 we need to define the functions we'll use to access and insert the data.
 To do this we'll define an
-[Elixir behaviour](https://hexdocs.pm/elixir/behaviours.html)
+[Elixir behaviour](https://elixir-lang.org/getting-started/typespecs-and-behaviours.html#behaviours)
 with some predefined functions.
 
 The first thing we'll do is create the file for the behaviour.
@@ -702,8 +719,8 @@ defmodule Append.AddressTest do
     end
 
     test "all/0" do
-      {:ok, item} = insert_address()
-      {:ok, item_2} = insert_address("Loki")
+      {:ok, _item} = insert_address()
+      {:ok, _item_2} = insert_address("Loki")
 
       assert length(Address.all()) == 2
     end
@@ -965,7 +982,7 @@ Here we're testing that the items we receive from our 'get' and 'all' functions 
 
 Run this test and...
 
-``` elixir 
+``` elixir
 1) test get updated item (Append.AddressTest)
      test/append/address_test.exs:34
      Assertion with == failed
@@ -985,7 +1002,7 @@ Run this test and...
        test/append/address_test.exs:48: (test)
 ```
 
-We're still getting the old items. 
+We're still getting the old items.
 
 To fix this we'll have to revisit our `get` function.
 
@@ -1065,7 +1082,7 @@ We'll use the same query in our `all` function, but replacing the `limit: 1` wit
 
 ``` elixir
 def all do
-  sub =
+  query =
     from(m in __MODULE__,
       distinct: m.entry_id,
       order_by: [desc: :inserted_at],
@@ -1150,7 +1167,7 @@ of the changes of all items in our database.
 
 #### 4.5 Delete
 
-As you may realise, even though we are using an append only database, we still need some way to "delete" items. 
+As you may realise, even though we are using an append only database, we still need some way to "delete" items.
 
 Of course they won't actually be deleted, merely marked as "inactive", so they don't show anywhere unless we specifically want them to (For example in our history function).
 
@@ -1230,7 +1247,7 @@ def delete(%__MODULE__{} = item) do
 end
 ```
 
-It acts just the same as the update function, but adds a value of `deleted: true`. But this is only half of the story. 
+It acts just the same as the update function, but adds a value of `deleted: true`. But this is only half of the story.
 
 We also need to make sure we don't return any deleted items when they're requested. So again, we'll have to edit our `get` and `all` functions:
 
