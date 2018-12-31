@@ -1120,8 +1120,8 @@ defmodule Append.AddressTest do
 
     assert length(history) == 2
     assert [h1, h2] = history
-    assert h1[:city] == "Asgard"
-    assert h2[:city] == "Oslo"
+    assert h1.city == "Asgard"
+    assert h2.city == "Oslo"
   end
   ...
 end
