@@ -1131,7 +1131,7 @@ defmodule Append.AddressTest do
       postcode: "NW1 SCA",
     })
 
-    {:ok, history} = Address.get_history(updated_item)
+    history = Address.get_history(updated_item)
 
     assert length(history) == 2
     assert [h1, h2] = history
