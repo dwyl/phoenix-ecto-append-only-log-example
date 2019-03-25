@@ -1017,17 +1017,32 @@ The first issue is that we're still using the `id` to get the item. As we know, 
 Luckily, we have another way to reference the item. Our `entry_id` that we created earlier. Let's use that in our query:
 
 ``` elixir
-def get(entry_id) do
-  query =
-    from(
-      m in __MODULE__,
-      where: m.entry_id == ^entry_id,
-      select: m
-    )
+defmodule Append.AppendOnlyLog do
+  alias Append.Repo
+  require Ecto.Query
 
-  Repo.one(query)
+  ...
+  defmacro __before_compile__(_env) do
+    quote do
+      import Ecto.Query
+
+      ...
+      def get(entry_id) do
+        query =
+          from(
+            m in __MODULE__,
+            where: m.entry_id == ^entry_id,
+            select: m
+          )
+
+        Repo.one(query)
+      end
+    ...
+    end
+  end
 end
 ```
+You'll notice that we're now importing Ecto.Query. We have to make sure we import Ecto.Query inside our macro, so the scope matches where we end up calling it.
 
 Don't forget to update the tests too:
 
@@ -1116,7 +1131,7 @@ defmodule Append.AddressTest do
       postcode: "NW1 SCA",
     })
 
-    {:ok, history} = Address.get_history(updated_item)
+    history = Address.get_history(updated_item)
 
     assert length(history) == 2
     assert [h1, h2] = history
@@ -1157,10 +1172,7 @@ defmodule Append.AppendOnlyLog do
 end
 ```
 
-You'll notice the new callback definition at the top of the file, and that we're
-now importing `Ecto.Query`.
-We have to make sure we import Ecto.Query inside our macro, so the scope matches
-where we end up calling it.
+You'll notice the new callback definition at the top of the file.
 
 Now run your tests, and you'll see that we're now able to view the whole history
 of the changes of all items in our database.
