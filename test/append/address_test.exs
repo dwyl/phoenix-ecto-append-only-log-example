@@ -10,16 +10,29 @@ defmodule Append.AddressTest do
 
   describe "get items from database" do
     test "get/1" do
-      {:ok, item} = insert_address()
+      # {:ok, item} = insert_address()
+      {:ok, item} = insert_address2()
 
       assert Address.get(item.entry_id) == item
     end
 
     test "all/0" do
-      {:ok, _} = insert_address()
-      {:ok, _} = insert_address("Loki")
-
+      insert_address()
+      {:ok, loki} = insert_address2("Loki")
       assert length(Address.all()) == 2
+
+      {:ok, loki2} = insert_address("Loki")
+
+      # remove things that will always be different
+      [m1, m2] =
+        [loki, loki2]
+        |> Enum.map(&Map.drop(&1, ~w(entry_id id inserted_at updated_at)a))
+
+      # This test shows that insert_address and insert_address2 both return the
+      # same value
+      # check out where insert_address amd insert_address2 are defined below to
+      # see differences between the two functions. (There isn't many)
+      assert Map.equal?(m1, m2)
     end
   end
 
@@ -67,8 +80,21 @@ defmodule Append.AddressTest do
     assert Map.fetch(h2, :city) == {:ok, "Oslo"}
   end
 
+  # macro way
   def insert_address(name \\ "Thor") do
     Address.insert(%{
+      name: name,
+      address_line_1: "The Hall",
+      address_line_2: "Valhalla",
+      city: "Asgard",
+      postcode: "AS1 3DG",
+      tel: "0800123123"
+    })
+  end
+
+  # function way
+  def insert_address2(name \\ "Thor") do
+    Append.AOL.insert(Address, %{
       name: name,
       address_line_1: "The Hall",
       address_line_2: "Valhalla",
